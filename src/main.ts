@@ -18,7 +18,7 @@ async function run(): Promise<void> {
       asset_name,
       asset_content_type
     })
-    core.setOutput('browser_download_url', output.browser_download_url)
+    // core.setOutput('browser_download_url', output.browser_download_url)
   } catch (error) {
     core.setFailed(error.message)
   }
