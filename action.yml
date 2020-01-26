@@ -23,7 +23,7 @@ outputs:
     description: 'The URL users can navigate to in order to download the uploaded asset'
 runs:
   using: 'node12'
-  main: 'lib/index.js'
+  main: 'lib/main.js'
 branding:
   icon: 'package'
   color: 'gray-dark'
