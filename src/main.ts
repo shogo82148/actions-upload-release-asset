@@ -1,5 +1,6 @@
 import * as core from '@actions/core'
 import {upload} from './upload-release-asset'
+import {GitHub} from '@actions/github'
 
 async function run(): Promise<void> {
   try {
@@ -8,8 +9,10 @@ async function run(): Promise<void> {
     const asset_path = core.getInput('asset_path', {required: true})
     const asset_name = core.getInput('asset_name')
     const asset_content_type = core.getInput('asset_content_type')
+
+    const github = new GitHub(github_token)
     const output = await upload({
-      github_token: github_token,
+      github: github,
       upload_url: upload_url,
       asset_path: asset_path,
       asset_name: asset_name,
