@@ -2,6 +2,10 @@ name: 'Yet Another Upload Release Asset Action'
 description: 'Yet Another Upload Release Asset Action'
 author: 'Ichinose Shogo'
 inputs:
+  github_token:
+    description: 'The API token for GitHub'
+    required: true
+    default: "${{ github.token }}"
   upload_url:
     description: 'The URL for uploading assets to the release'
     required: true
