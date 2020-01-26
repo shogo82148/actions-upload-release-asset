@@ -1,11 +1,9 @@
 import {upload} from '../src/upload-release-asset'
 
 test('Upload Release Asset', async () => {
-  const uploadReleaseAsset = jest
-    .fn()
-    .mockReturnValue({
-      data: {browser_download_url: 'http://example.com/donwls'}
-    })
+  const uploadReleaseAsset = jest.fn().mockReturnValue({
+    data: {browser_download_url: 'http://example.com/donwls'}
+  })
   const github = {
     repos: {
       uploadReleaseAsset
@@ -21,7 +19,7 @@ test('Upload Release Asset', async () => {
   })
 
   expect(uploadReleaseAsset).toHaveBeenCalledWith({
-    file: Buffer.from("foo\n"),
+    file: Buffer.from('foo\n'),
     headers: {
       'content-length': 4,
       'content-type': 'application/octet-stream'
