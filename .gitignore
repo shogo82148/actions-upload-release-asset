@@ -1,5 +1,7 @@
-# Dependency directory
-node_modules
+# comment out in distribution branches
+/node_modules/
+/bin/
+/lib/
 
 # Rest pulled from https://github.com/github/gitignore/blob/master/Node.gitignore
 # Logs
