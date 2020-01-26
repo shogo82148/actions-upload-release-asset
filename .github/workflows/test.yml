@@ -17,6 +17,8 @@ jobs:
           - windows-latest
           - macos-latest
     steps:
+    - name: disable auto CRLF
+      run: git config --global core.autoCRLF false
     - uses: actions/checkout@v2
     - run: npm ci
     - run: npm run build
