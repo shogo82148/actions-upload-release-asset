@@ -12,11 +12,11 @@ async function run(): Promise<void> {
 
     const github = new GitHub(github_token)
     const output = await upload({
-      github: github,
-      upload_url: upload_url,
-      asset_path: asset_path,
-      asset_name: asset_name,
-      asset_content_type: asset_content_type
+      github,
+      upload_url,
+      asset_path,
+      asset_name,
+      asset_content_type
     })
     core.setOutput('browser_download_url', output.browser_download_url)
   } catch (error) {

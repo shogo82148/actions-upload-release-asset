@@ -1,13 +1,33 @@
 import * as core from '@actions/core'
 import * as glob from '@actions/glob'
 import * as fs from 'fs'
+import Octokit from '@octokit/rest'
 
 interface Options {
-  github: any
+  github: GitHub
   upload_url: string
   asset_path: string
   asset_name: string
   asset_content_type: string
+}
+
+interface GitHub {
+  repos: GitHubRepos
+}
+
+interface Response<T> {
+  data: T
+}
+interface ReposUploadReleaseAssetResponse {
+  value: ReposUploadReleaseAssetResponseValue
+}
+interface ReposUploadReleaseAssetResponseValue {
+  browser_download_url: string
+}
+interface GitHubRepos {
+  uploadReleaseAsset: (
+    params?: Octokit.ReposUploadReleaseAssetParams
+  ) => Promise<Response<ReposUploadReleaseAssetResponse>>
 }
 
 interface Outputs {
