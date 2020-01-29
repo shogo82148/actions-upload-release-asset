@@ -2,7 +2,7 @@ import {upload} from '../src/upload-release-asset'
 
 test('Upload Release Asset', async () => {
   const uploadReleaseAsset = jest.fn().mockReturnValue({
-    data: {browser_download_url: 'http://example.com/download'}
+    data: {value: {browser_download_url: 'http://example.com/download'}}
   })
   const github = {
     repos: {
@@ -10,7 +10,7 @@ test('Upload Release Asset', async () => {
     }
   }
 
-  await upload({
+  const output = await upload({
     github: github,
     upload_url: 'http://example.com',
     asset_path: '__tests__/test/foo01.txt',
@@ -27,6 +27,8 @@ test('Upload Release Asset', async () => {
     name: 'foo01.txt',
     url: 'http://example.com'
   })
+
+  expect(output.browser_download_url).toBe('http://example.com/download')
 })
 
 test('Upload Multiple Files', async () => {
@@ -39,7 +41,7 @@ test('Upload Multiple Files', async () => {
     }
   }
 
-  await upload({
+  const output = await upload({
     github: github,
     upload_url: 'http://example.com',
     asset_path: '__tests__/test/foo0[123].txt',
@@ -74,6 +76,10 @@ test('Upload Multiple Files', async () => {
     name: 'foo03.txt',
     url: 'http://example.com'
   })
+
+  expect(output.browser_download_url).toBe(
+    'http://example.com/download\nhttp://example.com/download\nhttp://example.com/download'
+  )
 })
 
 test('Guess Content Types', async () => {
@@ -86,7 +92,7 @@ test('Guess Content Types', async () => {
     }
   }
 
-  await upload({
+  const output = await upload({
     github: github,
     upload_url: 'http://example.com',
     asset_path: '__tests__/test/bar.*',
@@ -121,4 +127,8 @@ test('Guess Content Types', async () => {
     name: 'bar.zip',
     url: 'http://example.com'
   })
+
+  expect(output.browser_download_url).toBe(
+    'http://example.com/download\nhttp://example.com/download\nhttp://example.com/download'
+  )
 })

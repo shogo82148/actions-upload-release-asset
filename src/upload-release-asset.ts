@@ -47,27 +47,30 @@ export async function upload(opts: Options): Promise<Outputs> {
     )
   }
 
-  files.forEach(async file => {
-    const name = opts.asset_name !== '' ? opts.asset_name : path.basename(file)
-    const content_type =
-      opts.asset_content_type !== ''
-        ? opts.asset_content_type
-        : mime.lookup(file) || 'application/octet-stream'
-    const stat = fs.statSync(file)
-    core.info(`uploading ${file} as ${name}: size: ${stat.size}`)
-    const response = await github.repos.uploadReleaseAsset({
-      url: opts.upload_url,
-      headers: {
-        'content-type': content_type,
-        'content-length': stat.size
-      },
-      name: name,
-      file: fs.readFileSync(file)
+  const urls = await Promise.all(
+    files.map(async file => {
+      const name =
+        opts.asset_name !== '' ? opts.asset_name : path.basename(file)
+      const content_type =
+        opts.asset_content_type !== ''
+          ? opts.asset_content_type
+          : mime.lookup(file) || 'application/octet-stream'
+      const stat = fs.statSync(file)
+      core.info(`uploading ${file} as ${name}: size: ${stat.size}`)
+      const response = await github.repos.uploadReleaseAsset({
+        url: opts.upload_url,
+        headers: {
+          'content-type': content_type,
+          'content-length': stat.size
+        },
+        name: name,
+        file: fs.readFileSync(file)
+      })
+      core.debug(JSON.stringify(response))
+      return response.data.value.browser_download_url
     })
-    core.debug(JSON.stringify(response))
-    return //response.data.value.browser_download_url
-  })
+  )
   return {
-    browser_download_url: ''
+    browser_download_url: urls.join('\n')
   }
 }
