@@ -3,6 +3,7 @@ import * as glob from '@actions/glob'
 import * as fs from 'fs'
 import * as path from 'path'
 import Octokit from '@octokit/rest'
+import * as mime from 'mime-types'
 
 interface Options {
   github: GitHub
@@ -48,12 +49,16 @@ export async function upload(opts: Options): Promise<Outputs> {
 
   files.forEach(async file => {
     const name = opts.asset_name !== '' ? opts.asset_name : path.basename(file)
+    const content_type =
+      opts.asset_content_type !== ''
+        ? opts.asset_content_type
+        : mime.lookup(file) || 'application/octet-stream'
     const stat = fs.statSync(file)
     core.info(`uploading ${file} as ${name}: size: ${stat.size}`)
     const response = await github.repos.uploadReleaseAsset({
       url: opts.upload_url,
       headers: {
-        'content-type': 'application/octet-stream', // TODO: see asset_content_type
+        'content-type': content_type,
         'content-length': stat.size
       },
       name: name,
