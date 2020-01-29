@@ -21,9 +21,6 @@ interface Response<T> {
   data: T
 }
 interface ReposUploadReleaseAssetResponse {
-  value: ReposUploadReleaseAssetResponseValue
-}
-interface ReposUploadReleaseAssetResponseValue {
   browser_download_url: string
 }
 interface GitHubRepos {
@@ -67,7 +64,7 @@ export async function upload(opts: Options): Promise<Outputs> {
         file: fs.readFileSync(file)
       })
       core.debug(JSON.stringify(response))
-      return response.data.value.browser_download_url
+      return response.data.browser_download_url
     })
   )
   return {
