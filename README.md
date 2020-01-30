@@ -1,117 +1,96 @@
-<p align="center">
-  <a href="https://github.com/actions/typescript-action/actions"><img alt="typescript-action status" src="https://github.com/actions/typescript-action/workflows/build-test/badge.svg"></a>
-</p>
+# GitHub Action - Releases API
 
-# Create a JavaScript Action using TypeScript
+![test](https://github.com/shogo82148/actions-upload-release-asset/workflows/test/badge.svg)
 
-Use this template to bootstrap the creation of a JavaScript action.:rocket:
+This GitHub Action uploads release assets using [Upload a release asset](https://developer.github.com/v3/repos/releases/#upload-a-release-asset).
 
-This template includes compilication support, tests, a validation workflow, publishing, and versioning guidance.  
+## SYNOPSIS
 
-If you are new, there's also a simpler introduction.  See the [Hello World JavaScript Action](https://github.com/actions/hello-world-javascript-action)
+### Upload assets when a release has been created
 
-## Create an action from this template
-
-Click the `Use this Template` and provide the new repo details for your action
-
-## Code in Master
-
-Install the dependencies  
-```bash
-$ npm install
-```
-
-Build the typescript
-```bash
-$ npm run build
-```
-
-Run the tests :heavy_check_mark:  
-```bash
-$ npm test
-
- PASS  ./index.test.js
-  ✓ throws invalid number (3ms)
-  ✓ wait 500 ms (504ms)
-  ✓ test runs (95ms)
-
-...
-```
-
-## Change action.yml
-
-The action.yml contains defines the inputs and output for your action.
-
-Update the action.yml with your name, description, inputs and outputs for your action.
-
-See the [documentation](https://help.github.com/en/articles/metadata-syntax-for-github-actions)
-
-## Change the Code
-
-Most toolkit and CI/CD operations involve async operations so the action is run in an async function.
-
-```javascript
-import * as core from '@actions/core';
-...
-
-async function run() {
-  try { 
-      ...
-  } 
-  catch (error) {
-    core.setFailed(error.message);
-  }
-}
-
-run()
-```
-
-See the [toolkit documentation](https://github.com/actions/toolkit/blob/master/README.md#packages) for the various packages.
-
-## Publish to a distribution branch
-
-Actions are run from GitHub repos.  We will create a releases branch and only checkin production modules (core in this case). 
-
-Comment out node_modules in .gitignore and create a releases/v1 branch
-```bash
-# comment out in distribution branches
-# node_modules/
-```
-
-```bash
-$ git checkout -b releases/v1
-$ git commit -a -m "prod dependencies"
-```
-
-```bash
-$ npm prune --production
-$ git add node_modules
-$ git commit -a -m "prod dependencies"
-$ git push origin releases/v1
-```
-
-Your action is now published! :rocket: 
-
-See the [versioning documentation](https://github.com/actions/toolkit/blob/master/docs/action-versioning.md)
-
-## Validate
-
-You can now validate the action by referencing the releases/v1 branch
+You can upload assets when [a release has been created](https://help.github.com/en/actions/automating-your-workflow-with-github-actions/events-that-trigger-workflows#release-event-release).
 
 ```yaml
-uses: actions/typescript-action@releases/v1
-with:
-  milliseconds: 1000
+on:
+  release:
+    types:
+      - created
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      # steps for building assets
+      - run: echo "REPLACE ME!" > assets.txt
+
+      - uses: shogo82148/actions-upload-release-asset@v1
+        with:
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: assets.txt
 ```
 
-See the [actions tab](https://github.com/actions/javascript-action/actions) for runs of this action! :rocket:
+### Upload assets when a tag has been created
 
-## Usage:
-
-After testing you can [create a v1 tag](https://github.com/actions/toolkit/blob/master/docs/action-versioning.md) to reference the stable and tested action
+If you want to create a release in your workflow, you can use [actions/create-release](https://github.com/actions/create-release) GitHub Action.
 
 ```yaml
-uses: actions/typescript-action@v1
-with:
-  milliseconds: 1000
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      # steps for building assets
+      - run: echo "REPLACE ME!" > assets.txt
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1.0.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          draft: false
+          prerelease: false
+
+      - uses: shogo82148/actions-upload-release-asset@v1
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: assets.txt
 ```
+
+## Inputs
+
+### github_token
+
+The API token for GitHub.
+`${{ github.token }}` is used by default.
+
+### upload_url
+
+The URL for uploading assets to the release.
+
+### asset_path
+
+The path to the asset you want to upload.
+You can use [glob patterns](https://github.com/actions/toolkit/tree/master/packages/glob#patterns) here.
+
+### asset_name
+
+The name of the asset you want to upload.
+The file name of `asset_path` is used by default.
+
+### asset_content_type
+
+The content-type of the asset you want to upload.
+See the supported Media Types here: https://www.iana.org/assignments/media-types/media-types.xhtml for more information.
+
+By default, the actions guess the content-type using the [mime-types](https://www.npmjs.com/package/mime-types) package.
