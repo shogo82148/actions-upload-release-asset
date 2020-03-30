@@ -2,7 +2,7 @@ import {upload} from '../src/upload-release-asset'
 
 test('Upload Release Asset', async () => {
   const uploadReleaseAsset = jest.fn().mockReturnValue({
-    data: {browser_download_url: 'http://example.com/download'}
+    data: {value: {browser_download_url: 'http://example.com/download'}}
   })
   const github = {
     repos: {
@@ -19,7 +19,7 @@ test('Upload Release Asset', async () => {
   })
 
   expect(uploadReleaseAsset).toHaveBeenCalledWith({
-    file: Buffer.from('foo\n'),
+    data: Buffer.from('foo\n'),
     headers: {
       'content-length': 4,
       'content-type': 'text/plain'
@@ -33,7 +33,7 @@ test('Upload Release Asset', async () => {
 
 test('Upload Multiple Files', async () => {
   const uploadReleaseAsset = jest.fn().mockReturnValue({
-    data: {browser_download_url: 'http://example.com/download'}
+    data: {value: {browser_download_url: 'http://example.com/download'}}
   })
   const github = {
     repos: {
@@ -50,7 +50,7 @@ test('Upload Multiple Files', async () => {
   })
 
   expect(uploadReleaseAsset).toHaveBeenCalledWith({
-    file: Buffer.from('foo\n'),
+    data: Buffer.from('foo\n'),
     headers: {
       'content-length': 4,
       'content-type': 'text/plain'
@@ -59,7 +59,7 @@ test('Upload Multiple Files', async () => {
     url: 'http://example.com'
   })
   expect(uploadReleaseAsset).toHaveBeenCalledWith({
-    file: Buffer.from('foo\n'),
+    data: Buffer.from('foo\n'),
     headers: {
       'content-length': 4,
       'content-type': 'text/plain'
@@ -68,7 +68,7 @@ test('Upload Multiple Files', async () => {
     url: 'http://example.com'
   })
   expect(uploadReleaseAsset).toHaveBeenCalledWith({
-    file: Buffer.from('foo\n'),
+    data: Buffer.from('foo\n'),
     headers: {
       'content-length': 4,
       'content-type': 'text/plain'
@@ -84,7 +84,7 @@ test('Upload Multiple Files', async () => {
 
 test('Guess Content Types', async () => {
   const uploadReleaseAsset = jest.fn().mockReturnValue({
-    data: {browser_download_url: 'http://example.com/download'}
+    data: {value: {browser_download_url: 'http://example.com/download'}}
   })
   const github = {
     repos: {
@@ -101,7 +101,7 @@ test('Guess Content Types', async () => {
   })
 
   expect(uploadReleaseAsset).toHaveBeenCalledWith({
-    file: Buffer.from('bar\n'),
+    data: Buffer.from('bar\n'),
     headers: {
       'content-length': 4,
       'content-type': 'image/jpeg'
@@ -110,7 +110,7 @@ test('Guess Content Types', async () => {
     url: 'http://example.com'
   })
   expect(uploadReleaseAsset).toHaveBeenCalledWith({
-    file: Buffer.from('bar\n'),
+    data: Buffer.from('bar\n'),
     headers: {
       'content-length': 4,
       'content-type': 'image/png'
@@ -119,7 +119,7 @@ test('Guess Content Types', async () => {
     url: 'http://example.com'
   })
   expect(uploadReleaseAsset).toHaveBeenCalledWith({
-    file: Buffer.from('bar\n'),
+    data: Buffer.from('bar\n'),
     headers: {
       'content-length': 4,
       'content-type': 'application/zip'
