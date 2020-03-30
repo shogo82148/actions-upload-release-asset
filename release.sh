@@ -20,7 +20,7 @@ git checkout -b "releases/v$MAJOR" "origin/releases/v$MAJOR" || git git checkout
 git merge -X theirs -m "Merge branch 'master' into releases/v$MAJOR" master || true
 jq ".version=\"$MAJOR.$MINOR.$PATCH\"" < package.json > .tmp.json
 mv .tmp.json package.json
-npm install
+npm ci
 npm run build
 
 : remove development packages from node_modules
