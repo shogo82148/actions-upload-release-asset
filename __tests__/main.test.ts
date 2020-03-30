@@ -2,7 +2,7 @@ import {upload} from '../src/upload-release-asset'
 
 test('Upload Release Asset', async () => {
   const uploadReleaseAsset = jest.fn().mockReturnValue({
-    data: {value: {browser_download_url: 'http://example.com/download'}}
+    data: {browser_download_url: 'http://example.com/download'}
   })
   const github = {
     repos: {
@@ -33,7 +33,7 @@ test('Upload Release Asset', async () => {
 
 test('Upload Multiple Files', async () => {
   const uploadReleaseAsset = jest.fn().mockReturnValue({
-    data: {value: {browser_download_url: 'http://example.com/download'}}
+    data: {browser_download_url: 'http://example.com/download'}
   })
   const github = {
     repos: {
@@ -84,7 +84,7 @@ test('Upload Multiple Files', async () => {
 
 test('Guess Content Types', async () => {
   const uploadReleaseAsset = jest.fn().mockReturnValue({
-    data: {value: {browser_download_url: 'http://example.com/download'}}
+    data: {browser_download_url: 'http://example.com/download'}
   })
   const github = {
     repos: {

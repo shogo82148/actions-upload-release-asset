@@ -10,7 +10,9 @@ async function run(): Promise<void> {
     const asset_name = core.getInput('asset_name')
     const asset_content_type = core.getInput('asset_content_type')
 
-    const github = new GitHub(github_token)
+    // bug? ReposUploadReleaseAssetResponse doesn't match actual response. 
+    // so ignore types
+    const github = new GitHub(github_token) as any
 
     const output = await upload({
       github,

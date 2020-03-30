@@ -16,11 +16,16 @@ interface Options {
 interface GitHub {
   repos: GitHubRepos
 }
-
+interface Response<T> {
+  data: T
+}
+interface ReposUploadReleaseAssetResponse {
+  browser_download_url: string
+}
 interface GitHubRepos {
   uploadReleaseAsset: (
     params?: Octokit.ReposUploadReleaseAssetParams
-  ) => Promise<Octokit.Response<Octokit.ReposUploadReleaseAssetResponse>>
+  ) => Promise<Response<ReposUploadReleaseAssetResponse>>
 }
 
 interface Outputs {
@@ -58,7 +63,7 @@ export async function upload(opts: Options): Promise<Outputs> {
         data: fs.readFileSync(file)
       })
       core.debug(JSON.stringify(response))
-      return response.data.value.browser_download_url
+      return response.data.browser_download_url
     })
   )
   return {
