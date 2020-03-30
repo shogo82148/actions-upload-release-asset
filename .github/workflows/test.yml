@@ -39,9 +39,11 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
         with:
           tag_name: test-${{ github.run_id }}
-          release_name: Test for ${{ github.sha }}
+          release_name: Test for ${{ github.run_id }}
           draft: true
           prerelease: true
+          body: |
+            https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
 
       - uses: ./
         with:
