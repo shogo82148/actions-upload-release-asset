@@ -45,7 +45,16 @@ jobs:
           body: |
             https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
 
-      - uses: ./
+      - name: upload
+        uses: ./
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: lib/*.js
+
+      - name: cleanup
+        run: |
+          curl -XDELETE -H "Accept: application/vnd.github.v3+json" -H "Authorization: token $GITHUB_TOKEN" \
+            https://api.github.com/repos/${{ github.repository }}/releases/${{ steps.create_release.outputs.id }}
+        if: always()
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
