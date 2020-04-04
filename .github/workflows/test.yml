@@ -56,3 +56,5 @@ jobs:
           curl -XDELETE -H "Accept: application/vnd.github.v3+json" -H "Authorization: token $GITHUB_TOKEN" \
             https://api.github.com/repos/${{ github.repository }}/releases/${{ steps.create_release.outputs.id }}
         if: always()
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
