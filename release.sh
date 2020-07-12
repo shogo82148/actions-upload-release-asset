@@ -22,12 +22,10 @@ jq ".version=\"$MAJOR.$MINOR.$PATCH\"" < package.json > .tmp.json
 mv .tmp.json package.json
 npm ci
 npm run build
-
-: remove development packages from node_modules
-npm prune --production
-perl -ne 'print unless m(^/node_modules/|/lib/|/bin/$)' -i .gitignore
+npm run pack
 
 : publish to GitHub
+perl -ne 'print unless m(^/dist/$)' -i .gitignore
 git add .
 git commit -m "bump up to v$MAJOR.$MINOR.$PATCH"
 git tag -a "v$MAJOR.$MINOR.$PATCH" -m "release v$MAJOR.$MINOR.$PATCH"
