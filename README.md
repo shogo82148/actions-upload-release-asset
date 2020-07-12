@@ -93,4 +93,4 @@ The file name of `asset_path` is used by default.
 The content-type of the asset you want to upload.
 See the supported Media Types here: https://www.iana.org/assignments/media-types/media-types.xhtml for more information.
 
-By default, the actions guess the content-type using the [mime-types](https://www.npmjs.com/package/mime-types) package.
+By default, the actions guesses the content-type using the [mime-types](https://www.npmjs.com/package/mime-types) package.
