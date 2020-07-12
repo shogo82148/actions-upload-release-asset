@@ -50,7 +50,9 @@ const uploadReleaseAsset = async (
       }
     }
   )
-  const u = new url.URL(params.url)
+  let rawurl = params.url
+  rawurl = rawurl.replace(/[{][^}]*[}]$/, '')
+  const u = new url.URL(rawurl)
   if (params.name) {
     u.searchParams.append('name', params.name)
   }
