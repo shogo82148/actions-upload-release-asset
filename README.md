@@ -6,7 +6,7 @@ This GitHub Action uploads release assets using [Upload a release asset](https:/
 
 ## FEATURE
 
-- You can upload multiple assets in one action by using [glob patterns](https://github.com/actions/toolkit/tree/master/packages/glob#patterns)
+- You can upload multiple assets in one step by using [glob patterns](https://github.com/actions/toolkit/tree/master/packages/glob#patterns)
 - The actions guesses the content-type from the extensions
 
 ## SYNOPSIS
