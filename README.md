@@ -4,6 +4,11 @@
 
 This GitHub Action uploads release assets using [Upload a release asset](https://developer.github.com/v3/repos/releases/#upload-a-release-asset).
 
+## FEATURE
+
+- You can upload multiple assets in one step by using [glob patterns](https://github.com/actions/toolkit/tree/master/packages/glob#patterns)
+- The actions guesses the content-type from the extensions
+
 ## SYNOPSIS
 
 ### Upload assets when a release has been created
@@ -93,4 +98,8 @@ The file name of `asset_path` is used by default.
 The content-type of the asset you want to upload.
 See the supported Media Types here: https://www.iana.org/assignments/media-types/media-types.xhtml for more information.
 
-By default, the actions guess the content-type using the [mime-types](https://www.npmjs.com/package/mime-types) package.
+By default, the actions guesses the content-type using the [mime-types](https://www.npmjs.com/package/mime-types) package.
+
+## Related works
+
+- [actions/upload-release-asset](https://github.com/actions/upload-release-asset) GitHub Action
