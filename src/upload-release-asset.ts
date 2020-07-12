@@ -64,7 +64,7 @@ const uploadReleaseAsset = async (
   )
   const statusCode = resp.message.statusCode
   const contents = await resp.readBody()
-  if ( statusCode !== 200) {
+  if (statusCode !== 201) {
     throw new Error(`unexpected status code: ${statusCode}\n${contents}`)
   }
   return {
