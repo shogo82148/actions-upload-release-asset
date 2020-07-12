@@ -60,10 +60,11 @@ const uploadReleaseAsset = async (
     params.data,
     params.headers
   )
-  if (resp.message.statusCode !== 200) {
-    throw new Error(`unexpected status code: ${resp.message.statusCode}`)
-  }
+  const statusCode = resp.message.statusCode
   const contents = await resp.readBody()
+  if ( statusCode !== 200) {
+    throw new Error(`unexpected status code: ${statusCode}\n${contents}`)
+  }
   return {
     data: JSON.parse(contents) as ReposUploadReleaseAssetResponse
   }
