@@ -46,7 +46,8 @@ const uploadReleaseAsset = async (
     [],
     {
       headers: {
-        Authorization: `token ${params.githubToken}`
+        Authorization: `token ${params.githubToken}`,
+        Accept: 'application/vnd.github.v3+json'
       }
     }
   )
