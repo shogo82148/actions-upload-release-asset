@@ -8,18 +8,45 @@ async function run(): Promise<void> {
     const assetPath = core.getInput('asset_path', {required: true})
     const assetName = core.getInput('asset_name')
     const assetContentType = core.getInput('asset_content_type')
+    const overwrite = parseBoolean(core.getInput('overwrite'))
 
     const output = await upload({
       githubToken,
       uploadUrl,
       assetPath,
       assetName,
-      assetContentType
+      assetContentType,
+      overwrite
     })
     core.setOutput('browser_download_url', output.browser_download_url)
   } catch (error) {
     core.setFailed(error.message)
   }
+}
+
+function parseBoolean(s: string): boolean {
+  // YAML 1.0 compatible boolean values
+  switch (s) {
+    case 'y':
+    case 'Y':
+    case 'yes':
+    case 'Yes':
+    case 'YES':
+    case 'true':
+    case 'True':
+    case 'TRUE':
+      return true
+    case 'n':
+    case 'N':
+    case 'no':
+    case 'No':
+    case 'NO':
+    case 'false':
+    case 'False':
+    case 'FALSE':
+      return false
+  }
+  throw `invalid boolean value: ${s}`
 }
 
 run()

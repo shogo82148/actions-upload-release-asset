@@ -13,6 +13,7 @@ interface Options {
   assetPath: string
   assetName: string
   assetContentType: string
+  overwrite: boolean
   uploadReleaseAsset?: (
     params: ReposUploadReleaseAssetParams
   ) => Promise<Response<ReposUploadReleaseAssetResponse>>
