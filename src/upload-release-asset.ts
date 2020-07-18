@@ -17,6 +17,9 @@ interface Options {
   uploadReleaseAsset?: (
     params: ReposUploadReleaseAssetParams
   ) => Promise<Response<ReposUploadReleaseAssetResponse>>
+  getRelease?: (
+    params: ReposGetReleaseParams
+  ) => Promise<Response<ReposGetReleaseResponse>>
 }
 
 interface Response<T> {
@@ -74,8 +77,55 @@ const uploadReleaseAsset = async (
   }
 }
 
+interface ReposGetReleaseParams {
+  owner: string
+  repo: string
+  releaseId: string
+  githubToken: string
+}
+
+interface ReposGetReleaseResponse {
+  upload_url: string
+  assets: ReposGetReleaseAsset[]
+}
+
+// subset of Assets resources on GitHub
+interface ReposGetReleaseAsset {
+  url: string
+  id: string
+  name: string
+}
+
+// minium implementation of get a release API
+// https://docs.github.com/en/rest/reference/repos#get-a-release
+const getRelease = async (
+  params: ReposGetReleaseParams
+): Promise<Response<ReposGetReleaseResponse>> => {
+  const client = new http.HttpClient(
+    'shogo82148-actions-upload-release-asset/v1',
+    [],
+    {
+      headers: {
+        Authorization: `token ${params.githubToken}`,
+        Accept: 'application/vnd.github.v3+json'
+      }
+    }
+  )
+  const url = `https://api.github.com/repos/${params.owner}/${params.repo}/releases/${params.releaseId}`
+  const resp = await client.request("GET", url, "", {})
+  const statusCode = resp.message.statusCode
+  const contents = await resp.readBody()
+  if (statusCode !== 200) {
+    throw new Error(`unexpected status code: ${statusCode}\n${contents}`)
+  }
+  return {
+    data: JSON.parse(contents) as ReposGetReleaseResponse
+  }
+}
+
 export async function upload(opts: Options): Promise<Outputs> {
   const uploader = opts.uploadReleaseAsset || uploadReleaseAsset
+  const get = opts.getRelease || getRelease
   const globber = await glob.create(opts.assetPath)
   const files = await globber.glob()
 
@@ -84,6 +134,10 @@ export async function upload(opts: Options): Promise<Outputs> {
       'validation error, cannot upload multiple files with asset_name option'
     )
   }
+
+  const {owner, repo, releaseId} = parseUploadUrl(opts.uploadUrl)
+  const release = await get({owner, repo, releaseId, githubToken: opts.githubToken})
+  console.log(release)
 
   const urls = await Promise.all(
     files.map(async file => {
