@@ -1,4 +1,4 @@
-import {upload} from '../src/upload-release-asset'
+import {upload, parseUploadUrl} from '../src/upload-release-asset'
 
 test('Upload Release Asset', async () => {
   const uploadReleaseAsset = jest.fn().mockReturnValue({
@@ -11,6 +11,7 @@ test('Upload Release Asset', async () => {
     assetPath: '__tests__/test/foo01.txt',
     assetName: 'foo01.txt',
     assetContentType: 'text/plain',
+    overwrite: false,
     uploadReleaseAsset: uploadReleaseAsset
   })
 
@@ -39,6 +40,7 @@ test('Upload Multiple Files', async () => {
     assetPath: '__tests__/test/foo0[123].txt',
     assetName: '',
     assetContentType: 'text/plain',
+    overwrite: false,
     uploadReleaseAsset: uploadReleaseAsset
   })
 
@@ -87,6 +89,7 @@ test('Guess Content Types', async () => {
     assetPath: '__tests__/test/bar.*',
     assetName: '',
     assetContentType: '',
+    overwrite: false,
     uploadReleaseAsset: uploadReleaseAsset
   })
 
@@ -122,4 +125,13 @@ test('Guess Content Types', async () => {
   expect(output.browser_download_url).toBe(
     'http://example.com/download\nhttp://example.com/download\nhttp://example.com/download'
   )
+})
+
+test('parseUploadUrl', () => {
+  const release = parseUploadUrl(
+    'https://example.com/repos/shogo82148/github-action-test/releases/23245222/assets'
+  )
+  expect(release.owner).toBe('shogo82148')
+  expect(release.repo).toBe('github-action-test')
+  expect(release.releaseId).toBe('23245222')
 })

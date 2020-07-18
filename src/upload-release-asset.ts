@@ -110,3 +110,25 @@ export async function upload(opts: Options): Promise<Outputs> {
     browser_download_url: urls.join('\n')
   }
 }
+
+interface Release {
+  owner: string
+  repo: string
+  releaseId: string
+}
+
+const regexUploadUrl = new RegExp(
+  '/repos/(?<owner>[^/]+)/(?<repo>[^/]+)/releases/(?<release_id>[0-9]+)/'
+)
+export function parseUploadUrl(rawurl: string): Release {
+  const match = rawurl.match(regexUploadUrl)
+  const groups = match?.groups
+  if (!groups) {
+    throw new Error(`failed to parse the upload url: ${rawurl}`)
+  }
+  return {
+    owner: groups['owner'],
+    repo: groups['repo'],
+    releaseId: groups['release_id']
+  }
+}
