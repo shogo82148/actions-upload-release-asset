@@ -112,7 +112,7 @@ const getRelease = async (
     }
   )
   const url = `https://api.github.com/repos/${params.owner}/${params.repo}/releases/${params.releaseId}`
-  const resp = await client.request("GET", url, "", {})
+  const resp = await client.request('GET', url, '', {})
   const statusCode = resp.message.statusCode
   const contents = await resp.readBody()
   if (statusCode !== 200) {
@@ -125,26 +125,17 @@ const getRelease = async (
 
 export async function upload(opts: Options): Promise<Outputs> {
   const uploader = opts.uploadReleaseAsset || uploadReleaseAsset
-  const get = opts.getRelease || getRelease
   const globber = await glob.create(opts.assetPath)
   const files = await globber.glob()
 
-  if (files.length > 1 && opts.assetName !== '') {
-    throw new Error(
-      'validation error, cannot upload multiple files with asset_name option'
-    )
-  }
-
-  const {owner, repo, releaseId} = parseUploadUrl(opts.uploadUrl)
-  const release = await get({owner, repo, releaseId, githubToken: opts.githubToken})
-  console.log(release)
+  await validateFilenames(files, opts)
 
   const urls = await Promise.all(
     files.map(async file => {
-      const name = opts.assetName || path.basename(file)
+      const name = canonicalName(opts.assetName || path.basename(file))
       const content_type =
         opts.assetContentType || mime.lookup(file) || 'application/octet-stream'
-      const stat = fs.statSync(file)
+      const stat = await fsStats(file)
       core.info(`uploading ${file} as ${name}: size: ${stat.size}`)
       const response = await uploader({
         githubToken: opts.githubToken,
@@ -163,6 +154,100 @@ export async function upload(opts: Options): Promise<Outputs> {
   return {
     browser_download_url: urls.join('\n')
   }
+}
+
+async function fsStats(file: string): Promise<fs.Stats> {
+  return new Promise((resolve, reject) => {
+    fs.stat(file, (err, stats) => {
+      if (err) {
+        reject(err)
+        return
+      }
+      resolve(stats)
+    })
+  })
+}
+
+async function validateFilenames(files: string[], opts: Options) {
+  if (files.length > 1 && opts.assetName !== '') {
+    throw new Error(
+      'validation error: cannot upload multiple files with asset_name option'
+    )
+  }
+
+  interface AssetOrFile {
+    name: string
+    asset?: ReposGetReleaseAsset
+    files: string[]
+  }
+
+  // get assets already uploaded
+  const assets: {[name: string]: AssetOrFile} = {}
+  const getter = opts.getRelease || getRelease
+  const {owner, repo, releaseId} = parseUploadUrl(opts.uploadUrl)
+  const release = await getter({
+    owner,
+    repo,
+    releaseId,
+    githubToken: opts.githubToken
+  })
+  release.data.assets.forEach(asset => {
+    assets[asset.name] = {
+      name: asset.name,
+      asset: asset,
+      files: []
+    }
+  })
+
+  // check duplications
+  const duplications: AssetOrFile[] = []
+  files.forEach(file => {
+    const name = canonicalName(opts.assetName || path.basename(file))
+    const asset = assets[name]
+    if (asset) {
+      duplications.push(asset)
+      asset.files.push(file)
+    } else {
+      assets[name] = {
+        name,
+        files: [file]
+      }
+    }
+  })
+
+  // report the result of validation
+  let errorCount = 0
+  duplications.forEach(item => {
+    if (item.files.length <= 1) {
+      return
+    }
+    core.error(
+      `validation error: file name "${
+        item.name
+      }" is duplicated. (${item.files.join(', ')})`
+    )
+    errorCount++
+  })
+
+  // report the result of validation
+  const deleteAssets = duplications
+    .filter(item => {
+      return item.files.length === 1 && item.asset
+    })
+    .map(item => item.asset!)
+  if (!opts.overwrite) {
+    deleteAssets.forEach(item => {
+      core.error(`validation error: file name "${item.name}" already exists`)
+      errorCount++
+    })
+  }
+  if (errorCount > 0) {
+    throw new Error('validation error')
+  }
+}
+
+export function canonicalName(name: string): string {
+  return name
 }
 
 interface Release {
