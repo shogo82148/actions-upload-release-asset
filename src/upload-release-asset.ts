@@ -294,7 +294,16 @@ async function validateFilenames(files: string[], opts: Options) {
 }
 
 export function canonicalName(name: string): string {
-  return name
+  name = name.replace(/[,/]/g, '.')
+  name = name.replace(/[^-+@_.a-zA-Z0-9]/g, '',)
+  name = name.replace(/[.]+/g, '.')
+  if (name.match(/^[.].+$/)) {
+    return 'default' + name.replace(/[.]$/, '')
+  }
+  if (name.match(/^[^.]+[.]$/)) {
+    return 'default.' + name.replace(/[.]$/, '')
+  }
+  return name.replace(/[.]$/, '')
 }
 
 interface Release {

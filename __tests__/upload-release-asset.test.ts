@@ -1,4 +1,4 @@
-import {upload, parseUploadUrl} from '../src/upload-release-asset'
+import {upload, parseUploadUrl, canonicalName} from '../src/upload-release-asset'
 
 test('Upload Release Asset', async () => {
   const uploadUrl =
@@ -324,4 +324,23 @@ test('parseUploadUrl', () => {
   expect(release.owner).toBe('shogo82148')
   expect(release.repo).toBe('github-action-test')
   expect(release.releaseId).toBe('23245222')
+})
+
+test('canonicalName', () => {
+  expect(canonicalName('foo.txt')).toBe('foo.txt')
+  expect(canonicalName('foo')).toBe('foo')
+  expect(canonicalName('foo.')).toBe('default.foo')
+  expect(canonicalName('foo..')).toBe('default.foo')
+  expect(canonicalName('.foo')).toBe('default.foo')
+  expect(canonicalName('..foo')).toBe('default.foo')
+  expect(canonicalName('.foo.')).toBe('default.foo')
+  expect(canonicalName('foo.txt.')).toBe('foo.txt')
+  expect(canonicalName('.foo.txt')).toBe('default.foo.txt')
+  expect(canonicalName('.foo.txt.')).toBe('default.foo.txt')
+  expect(canonicalName('foo...txt')).toBe('foo.txt')
+  expect(canonicalName(' !"#$%&\'()*+,-.txt')).toBe('+.-.txt')
+  expect(canonicalName('foo/bar.txt')).toBe('foo.bar.txt')
+  expect(canonicalName(':;<=>?@.txt')).toBe('@.txt')
+  expect(canonicalName('[\\]^_`{|}~.txt')).toBe('_.txt')
+  expect(canonicalName('あab.txt')).toBe('ab.txt')
 })
