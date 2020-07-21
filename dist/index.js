@@ -1309,12 +1309,14 @@ function run() {
             const assetPath = core.getInput('asset_path', { required: true });
             const assetName = core.getInput('asset_name');
             const assetContentType = core.getInput('asset_content_type');
+            const overwrite = parseBoolean(core.getInput('overwrite'));
             const output = yield upload_release_asset_1.upload({
                 githubToken,
                 uploadUrl,
                 assetPath,
                 assetName,
-                assetContentType
+                assetContentType,
+                overwrite
             });
             core.setOutput('browser_download_url', output.browser_download_url);
         }
@@ -1322,6 +1324,30 @@ function run() {
             core.setFailed(error.message);
         }
     });
+}
+function parseBoolean(s) {
+    // YAML 1.0 compatible boolean values
+    switch (s) {
+        case 'y':
+        case 'Y':
+        case 'yes':
+        case 'Yes':
+        case 'YES':
+        case 'true':
+        case 'True':
+        case 'TRUE':
+            return true;
+        case 'n':
+        case 'N':
+        case 'no':
+        case 'No':
+        case 'NO':
+        case 'false':
+        case 'False':
+        case 'FALSE':
+            return false;
+    }
+    throw `invalid boolean value: ${s}`;
 }
 run();
 
@@ -3812,7 +3838,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.upload = void 0;
+exports.parseUploadUrl = exports.canonicalName = exports.upload = void 0;
 const fs = __importStar(__webpack_require__(747));
 const path = __importStar(__webpack_require__(622));
 const url = __importStar(__webpack_require__(835));
@@ -3823,7 +3849,8 @@ const mime = __importStar(__webpack_require__(779));
 const uploadReleaseAsset = (params) => __awaiter(void 0, void 0, void 0, function* () {
     const client = new http.HttpClient('shogo82148-actions-upload-release-asset/v1', [], {
         headers: {
-            Authorization: `token ${params.githubToken}`
+            Authorization: `token ${params.githubToken}`,
+            Accept: 'application/vnd.github.v3+json'
         }
     });
     let rawurl = params.url;
@@ -3842,18 +3869,52 @@ const uploadReleaseAsset = (params) => __awaiter(void 0, void 0, void 0, functio
         data: JSON.parse(contents)
     };
 });
+const deleteReleaseAsset = (params) => __awaiter(void 0, void 0, void 0, function* () {
+    const client = new http.HttpClient('shogo82148-actions-upload-release-asset/v1', [], {
+        headers: {
+            Authorization: `token ${params.githubToken}`,
+            Accept: 'application/vnd.github.v3+json'
+        }
+    });
+    const url = `https://api.github.com/repos/${params.owner}/${params.repo}/releases/assets/${params.assetId}`;
+    const resp = yield client.request('DELETE', url, '', {});
+    const statusCode = resp.message.statusCode;
+    const contents = yield resp.readBody();
+    if (statusCode !== 204) {
+        throw new Error(`unexpected status code: ${statusCode}\n${contents}`);
+    }
+    return;
+});
+// minium implementation of get a release API
+// https://docs.github.com/en/rest/reference/repos#get-a-release
+const getRelease = (params) => __awaiter(void 0, void 0, void 0, function* () {
+    const client = new http.HttpClient('shogo82148-actions-upload-release-asset/v1', [], {
+        headers: {
+            Authorization: `token ${params.githubToken}`,
+            Accept: 'application/vnd.github.v3+json'
+        }
+    });
+    const url = `https://api.github.com/repos/${params.owner}/${params.repo}/releases/${params.releaseId}`;
+    const resp = yield client.request('GET', url, '', {});
+    const statusCode = resp.message.statusCode;
+    const contents = yield resp.readBody();
+    if (statusCode !== 200) {
+        throw new Error(`unexpected status code: ${statusCode}\n${contents}`);
+    }
+    return {
+        data: JSON.parse(contents)
+    };
+});
 function upload(opts) {
     return __awaiter(this, void 0, void 0, function* () {
         const uploader = opts.uploadReleaseAsset || uploadReleaseAsset;
         const globber = yield glob.create(opts.assetPath);
         const files = yield globber.glob();
-        if (files.length > 1 && opts.assetName !== '') {
-            throw new Error('validation error, cannot upload multiple files with asset_name option');
-        }
+        yield validateFilenames(files, opts);
         const urls = yield Promise.all(files.map((file) => __awaiter(this, void 0, void 0, function* () {
-            const name = opts.assetName || path.basename(file);
+            const name = canonicalName(opts.assetName || path.basename(file));
             const content_type = opts.assetContentType || mime.lookup(file) || 'application/octet-stream';
-            const stat = fs.statSync(file);
+            const stat = yield fsStats(file);
             core.info(`uploading ${file} as ${name}: size: ${stat.size}`);
             const response = yield uploader({
                 githubToken: opts.githubToken,
@@ -3874,6 +3935,123 @@ function upload(opts) {
     });
 }
 exports.upload = upload;
+function fsStats(file) {
+    return __awaiter(this, void 0, void 0, function* () {
+        return new Promise((resolve, reject) => {
+            fs.stat(file, (err, stats) => {
+                if (err) {
+                    reject(err);
+                    return;
+                }
+                resolve(stats);
+            });
+        });
+    });
+}
+function validateFilenames(files, opts) {
+    return __awaiter(this, void 0, void 0, function* () {
+        if (files.length > 1 && opts.assetName !== '') {
+            throw new Error('validation error: cannot upload multiple files with asset_name option');
+        }
+        // get assets already uploaded
+        const assets = {};
+        const getter = opts.getRelease || getRelease;
+        const { owner, repo, releaseId } = parseUploadUrl(opts.uploadUrl);
+        const release = yield getter({
+            owner,
+            repo,
+            releaseId,
+            githubToken: opts.githubToken
+        });
+        release.data.assets.forEach(asset => {
+            assets[asset.name] = {
+                name: asset.name,
+                asset: asset,
+                files: []
+            };
+        });
+        // check duplications
+        const duplications = [];
+        files.forEach(file => {
+            const name = canonicalName(opts.assetName || path.basename(file));
+            const asset = assets[name];
+            if (asset) {
+                duplications.push(asset);
+                asset.files.push(file);
+            }
+            else {
+                assets[name] = {
+                    name,
+                    files: [file]
+                };
+            }
+        });
+        // report the result of validation
+        let errorCount = 0;
+        duplications.forEach(item => {
+            if (item.files.length <= 1) {
+                return;
+            }
+            core.error(`validation error: file name "${item.name}" is duplicated. (${item.files.join(', ')})`);
+            errorCount++;
+        });
+        // report the result of validation
+        const deleteAssets = duplications
+            .filter(item => {
+            return item.files.length === 1 && item.asset;
+        })
+            .map(item => item.asset);
+        if (!opts.overwrite) {
+            deleteAssets.forEach(item => {
+                core.error(`validation error: file name "${item.name}" already exists`);
+                errorCount++;
+            });
+        }
+        if (errorCount > 0) {
+            throw new Error('validation error');
+        }
+        if (!opts.overwrite || deleteAssets.length === 0) {
+            return;
+        }
+        const deleter = opts.deleteReleaseAsset || deleteReleaseAsset;
+        yield Promise.all(deleteAssets.map((asset) => __awaiter(this, void 0, void 0, function* () {
+            core.info(`deleting asset ${asset.name} before uploading`);
+            yield deleter({
+                owner,
+                repo,
+                assetId: asset.id,
+                githubToken: opts.githubToken
+            });
+        })));
+    });
+}
+function canonicalName(name) {
+    name = name.replace(/[,/]/g, '.');
+    name = name.replace(/[^-+@_.a-zA-Z0-9]/g, '');
+    name = name.replace(/[.]+/g, '.');
+    if (name.match(/^[.].+$/)) {
+        return 'default' + name.replace(/[.]$/, '');
+    }
+    if (name.match(/^[^.]+[.]$/)) {
+        return 'default.' + name.replace(/[.]$/, '');
+    }
+    return name.replace(/[.]$/, '');
+}
+exports.canonicalName = canonicalName;
+const regexUploadUrl = new RegExp('/repos/(?<owner>[^/]+)/(?<repo>[^/]+)/releases/(?<release_id>[0-9]+)/');
+function parseUploadUrl(rawurl) {
+    const match = rawurl.match(regexUploadUrl);
+    const groups = match === null || match === void 0 ? void 0 : match.groups;
+    if (!groups) {
+        throw new Error(`failed to parse the upload url: ${rawurl}`);
+    }
+    return {
+        owner: groups['owner'],
+        repo: groups['repo'],
+        releaseId: groups['release_id']
+    };
+}
+exports.parseUploadUrl = parseUploadUrl;
 
 
 /***/ })
