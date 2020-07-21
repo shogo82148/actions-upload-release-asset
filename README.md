@@ -100,6 +100,10 @@ See the supported Media Types here: https://www.iana.org/assignments/media-types
 
 By default, the actions guesses the content-type using the [mime-types](https://www.npmjs.com/package/mime-types) package.
 
+### overwrite
+
+If an asset with the same name already exists, overwrite it (Default: false).
+
 ## Related works
 
 - [actions/upload-release-asset](https://github.com/actions/upload-release-asset) GitHub Action

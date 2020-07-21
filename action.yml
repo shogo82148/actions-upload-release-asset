@@ -18,6 +18,10 @@ inputs:
   asset_content_type:
     description: 'The content-type of the asset you want to upload. See the supported Media Types here: https://www.iana.org/assignments/media-types/media-types.xhtml for more information'
     required: false
+  overwrite:
+    description: 'If an asset with the same name already exists, overwrite it (Default: false)'
+    required: false
+    default: false
 outputs:
   browser_download_url:
     description: 'The URL users can navigate to in order to download the uploaded asset'
