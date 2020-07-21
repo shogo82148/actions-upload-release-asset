@@ -20,6 +20,7 @@ interface Options {
   getRelease?: (
     params: ReposGetReleaseParams
   ) => Promise<Response<ReposGetReleaseResponse>>
+  deleteReleaseAsset?: (params: ReposDeleteReleaseAssetParams) => Promise<void>
 }
 
 interface Response<T> {
@@ -75,6 +76,36 @@ const uploadReleaseAsset = async (
   return {
     data: JSON.parse(contents) as ReposUploadReleaseAssetResponse
   }
+}
+
+interface ReposDeleteReleaseAssetParams {
+  owner: string
+  repo: string
+  assetId: string
+  githubToken: string
+}
+
+const deleteReleaseAsset = async (
+  params: ReposDeleteReleaseAssetParams
+): Promise<void> => {
+  const client = new http.HttpClient(
+    'shogo82148-actions-upload-release-asset/v1',
+    [],
+    {
+      headers: {
+        Authorization: `token ${params.githubToken}`,
+        Accept: 'application/vnd.github.v3+json'
+      }
+    }
+  )
+  const url = `https://api.github.com/repos/${params.owner}/${params.repo}/releases/assets/${params.assetId}`
+  const resp = await client.request('DELETE', url, '', {})
+  const statusCode = resp.message.statusCode
+  const contents = await resp.readBody()
+  if (statusCode !== 204) {
+    throw new Error(`unexpected status code: ${statusCode}\n${contents}`)
+  }
+  return
 }
 
 interface ReposGetReleaseParams {
@@ -244,6 +275,22 @@ async function validateFilenames(files: string[], opts: Options) {
   if (errorCount > 0) {
     throw new Error('validation error')
   }
+
+  if (!opts.overwrite || deleteAssets.length === 0) {
+    return
+  }
+  const deleter = opts.deleteReleaseAsset || deleteReleaseAsset
+  await Promise.all(
+    deleteAssets.map(async asset => {
+      core.info(`deleting asset ${asset.name} before uploading`)
+      await deleter({
+        owner,
+        repo,
+        assetId: asset.id,
+        githubToken: opts.githubToken
+      })
+    })
+  )
 }
 
 export function canonicalName(name: string): string {
