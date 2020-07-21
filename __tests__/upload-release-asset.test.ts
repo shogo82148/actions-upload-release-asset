@@ -240,6 +240,40 @@ test('duplicated file names', async () => {
   ).rejects.toThrow(/validation error/)
 })
 
+test('uploading files already exists', async () => {
+  const uploadUrl =
+    'https://example.com/repos/shogo82148/github-action-test/releases/23245222/assets'
+  const uploadReleaseAsset = jest.fn().mockReturnValue({
+    data: {browser_download_url: 'http://example.com/download'}
+  })
+  const getRelease = jest.fn().mockReturnValue({
+    data: {
+      upload_url: uploadUrl,
+      assets: [
+        {
+          id: '1234',
+          url: 'http://example.com/download',
+          name: 'foo01.txt'
+        }
+      ]
+    }
+  })
+
+  await expect(
+    async () =>
+      await upload({
+        githubToken: 'very-secret',
+        uploadUrl: uploadUrl,
+        assetPath: '__tests__/test/foo01.txt',
+        assetName: '',
+        assetContentType: '',
+        overwrite: false,
+        uploadReleaseAsset: uploadReleaseAsset,
+        getRelease: getRelease
+      })
+  ).rejects.toThrow(/validation error/)
+})
+
 test('parseUploadUrl', () => {
   const release = parseUploadUrl(
     'https://example.com/repos/shogo82148/github-action-test/releases/23245222/assets'
