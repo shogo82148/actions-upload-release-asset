@@ -2,7 +2,7 @@
 
 ![test](https://github.com/shogo82148/actions-upload-release-asset/workflows/test/badge.svg)
 
-This GitHub Action uploads release assets using [Upload a release asset](https://developer.github.com/v3/repos/releases/#upload-a-release-asset).
+This GitHub Action uploads release assets using [Upload a release asset](https://docs.github.com/en/rest/reference/repos#upload-a-release-asset).
 
 ## FEATURE
 
@@ -13,7 +13,7 @@ This GitHub Action uploads release assets using [Upload a release asset](https:/
 
 ### Upload assets when a release has been created
 
-You can upload assets when [a release has been created](https://help.github.com/en/actions/automating-your-workflow-with-github-actions/events-that-trigger-workflows#release-event-release).
+You can upload assets when [a release has been created](https://docs.github.com/en/actions/reference/events-that-trigger-workflows#release).
 
 ```yaml
 on:
@@ -99,6 +99,10 @@ The content-type of the asset you want to upload.
 See the supported Media Types here: https://www.iana.org/assignments/media-types/media-types.xhtml for more information.
 
 By default, the actions guesses the content-type using the [mime-types](https://www.npmjs.com/package/mime-types) package.
+
+### overwrite
+
+If an asset with the same name already exists, overwrite it (Default: false).
 
 ## Related works
 

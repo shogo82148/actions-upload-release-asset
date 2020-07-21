@@ -52,6 +52,13 @@ jobs:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: lib/*.js
 
+      - name: overwrite
+        uses: ./
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: lib/*.js
+          overwrite: true
+
       - name: cleanup
         run: |
           curl -XDELETE -H "Accept: application/vnd.github.v3+json" -H "Authorization: token $GITHUB_TOKEN" \
