@@ -16,8 +16,8 @@ git clone "$ORIGIN" "$WORKING"
 cd "$WORKING"
 
 : build the action
-git checkout -b "releases/v$MAJOR" "origin/releases/v$MAJOR" || git git checkout -b "releases/v$MAJOR" master
-git merge -X theirs -m "Merge branch 'master' into releases/v$MAJOR" master || true
+git checkout -b "releases/v$MAJOR" "origin/releases/v$MAJOR" || git git checkout -b "releases/v$MAJOR" main
+git merge -X theirs -m "Merge branch 'main' into releases/v$MAJOR" main || true
 jq ".version=\"$MAJOR.$MINOR.$PATCH\"" < package.json > .tmp.json
 mv .tmp.json package.json
 npm ci
