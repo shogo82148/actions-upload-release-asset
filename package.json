@@ -1,8 +1,8 @@
 {
-  "name": "typescript-action",
+  "name": "actions-upload-release-asset",
   "version": "0.0.0",
   "private": true,
-  "description": "TypeScript template action",
+  "description": "Yet Another Upload Release Asset Action",
   "main": "lib/main.js",
   "scripts": {
     "build": "tsc",
