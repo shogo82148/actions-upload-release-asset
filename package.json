@@ -33,7 +33,7 @@
   "devDependencies": {
     "@types/jest": "^26.0.23",
     "@types/mime-types": "^2.1.0",
-    "@types/node": "^15.0.2",
+    "@types/node": "^15.0.3",
     "@typescript-eslint/parser": "^4.23.0",
     "@zeit/ncc": "^0.22.3",
     "eslint": "^7.26.0",
