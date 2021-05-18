@@ -97,7 +97,7 @@ const deleteReleaseAsset = async (
       }
     }
   )
-  const resp = await client.request('DELETE', url, '', {})
+  const resp = await client.request('DELETE', params.url, '', {})
   const statusCode = resp.message.statusCode
   const contents = await resp.readBody()
   if (statusCode !== 204) {
@@ -138,8 +138,7 @@ const getRelease = async (
       }
     }
   )
-  const url = `https://api.github.com/repos/${params.owner}/${params.repo}/releases/${params.releaseId}`
-  const resp = await client.request('GET', url, '', {})
+  const resp = await client.request('GET', params.releaseUrl, '', {})
   const statusCode = resp.message.statusCode
   const contents = await resp.readBody()
   if (statusCode !== 200) {
@@ -206,7 +205,6 @@ async function validateFilenames(files: string[], opts: Options) {
     name: string
     asset?: ReposGetReleaseAsset
     files: string[]
-    url: string
   }
 
   // get assets already uploaded
@@ -220,8 +218,7 @@ async function validateFilenames(files: string[], opts: Options) {
     assets[asset.name] = {
       name: asset.name,
       asset: asset,
-      files: [],
-      url: asset.url
+      files: []
     }
   })
 
@@ -236,8 +233,7 @@ async function validateFilenames(files: string[], opts: Options) {
     } else {
       assets[name] = {
         name,
-        files: [file],
-        url
+        files: [file]
       }
     }
   })
