@@ -10,7 +10,6 @@ import * as mime from 'mime-types'
 interface Options {
   githubToken: string
   uploadUrl: string
-  releaseUrl: string
   assetPath: string
   assetName: string
   assetContentType: string
@@ -107,7 +106,9 @@ const deleteReleaseAsset = async (
 }
 
 interface ReposGetReleaseParams {
-  releaseUrl: string
+  owner: string
+  repo: string
+  releaseId: string
   githubToken: string
 }
 
@@ -138,7 +139,8 @@ const getRelease = async (
       }
     }
   )
-  const resp = await client.request('GET', params.releaseUrl, '', {})
+  const url = `${getApiBaseUrl()}/repos/${params.owner}/${params.repo}/releases/${params.releaseId}`
+  const resp = await client.request('GET', url, '', {})
   const statusCode = resp.message.statusCode
   const contents = await resp.readBody()
   if (statusCode !== 200) {
@@ -210,8 +212,11 @@ async function validateFilenames(files: string[], opts: Options) {
   // get assets already uploaded
   const assets: {[name: string]: AssetOrFile} = {}
   const getter = opts.getRelease || getRelease
+  const {owner, repo, releaseId} = parseUploadUrl(opts.uploadUrl)
   const release = await getter({
-    releaseUrl: opts.releaseUrl,
+    owner,
+    repo,
+    releaseId,
     githubToken: opts.githubToken
   })
   release.data.assets.forEach(asset => {
@@ -316,4 +321,7 @@ export function parseUploadUrl(rawurl: string): Release {
     repo: groups['repo'],
     releaseId: groups['release_id']
   }
+}
+export function getApiBaseUrl(): string {
+  return process.env['GITHUB_API_URL'] || 'https://api.github.com'
 }

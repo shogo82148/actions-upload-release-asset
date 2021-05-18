@@ -5,7 +5,6 @@ async function run(): Promise<void> {
   try {
     const githubToken = core.getInput('github_token', {required: true})
     const uploadUrl = core.getInput('upload_url', {required: true})
-    const releaseUrl = core.getInput('release_url', {required: true})
     const assetPath = core.getInput('asset_path', {required: true})
     const assetName = core.getInput('asset_name')
     const assetContentType = core.getInput('asset_content_type')
@@ -14,7 +13,6 @@ async function run(): Promise<void> {
     const output = await upload({
       githubToken,
       uploadUrl,
-      releaseUrl,
       assetPath,
       assetName,
       assetContentType,
