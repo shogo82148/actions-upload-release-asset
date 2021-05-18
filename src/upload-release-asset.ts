@@ -10,6 +10,7 @@ import * as mime from 'mime-types'
 interface Options {
   githubToken: string
   uploadUrl: string
+  releaseUrl: string
   assetPath: string
   assetName: string
   assetContentType: string
@@ -79,9 +80,7 @@ const uploadReleaseAsset = async (
 }
 
 interface ReposDeleteReleaseAssetParams {
-  owner: string
-  repo: string
-  assetId: string
+  url: string
   githubToken: string
 }
 
@@ -98,7 +97,6 @@ const deleteReleaseAsset = async (
       }
     }
   )
-  const url = `https://api.github.com/repos/${params.owner}/${params.repo}/releases/assets/${params.assetId}`
   const resp = await client.request('DELETE', url, '', {})
   const statusCode = resp.message.statusCode
   const contents = await resp.readBody()
@@ -109,9 +107,7 @@ const deleteReleaseAsset = async (
 }
 
 interface ReposGetReleaseParams {
-  owner: string
-  repo: string
-  releaseId: string
+  releaseUrl: string
   githubToken: string
 }
 
@@ -210,23 +206,22 @@ async function validateFilenames(files: string[], opts: Options) {
     name: string
     asset?: ReposGetReleaseAsset
     files: string[]
+    url: string
   }
 
   // get assets already uploaded
   const assets: {[name: string]: AssetOrFile} = {}
   const getter = opts.getRelease || getRelease
-  const {owner, repo, releaseId} = parseUploadUrl(opts.uploadUrl)
   const release = await getter({
-    owner,
-    repo,
-    releaseId,
+    releaseUrl: opts.releaseUrl,
     githubToken: opts.githubToken
   })
   release.data.assets.forEach(asset => {
     assets[asset.name] = {
       name: asset.name,
       asset: asset,
-      files: []
+      files: [],
+      url: asset.url
     }
   })
 
@@ -241,7 +236,8 @@ async function validateFilenames(files: string[], opts: Options) {
     } else {
       assets[name] = {
         name,
-        files: [file]
+        files: [file],
+        url
       }
     }
   })
@@ -284,9 +280,7 @@ async function validateFilenames(files: string[], opts: Options) {
     deleteAssets.map(async asset => {
       core.info(`deleting asset ${asset.name} before uploading`)
       await deleter({
-        owner,
-        repo,
-        assetId: asset.id,
+        url: asset.url,
         githubToken: opts.githubToken
       })
     })
