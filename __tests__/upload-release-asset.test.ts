@@ -309,9 +309,7 @@ test('overwrite', async () => {
     deleteReleaseAsset: deleteReleaseAsset
   })
   expect(deleteReleaseAsset).toBeCalledWith({
-    owner: 'shogo82148',
-    repo: 'github-action-test',
-    assetId: '1234',
+    url: 'http://example.com/download',
     githubToken: 'very-secret'
   })
   expect(uploadReleaseAsset).toBeCalledTimes(1)

@@ -79,9 +79,7 @@ const uploadReleaseAsset = async (
 }
 
 interface ReposDeleteReleaseAssetParams {
-  owner: string
-  repo: string
-  assetId: string
+  url: string
   githubToken: string
 }
 
@@ -98,8 +96,7 @@ const deleteReleaseAsset = async (
       }
     }
   )
-  const url = `https://api.github.com/repos/${params.owner}/${params.repo}/releases/assets/${params.assetId}`
-  const resp = await client.request('DELETE', url, '', {})
+  const resp = await client.request('DELETE', params.url, '', {})
   const statusCode = resp.message.statusCode
   const contents = await resp.readBody()
   if (statusCode !== 204) {
@@ -142,7 +139,7 @@ const getRelease = async (
       }
     }
   )
-  const url = `https://api.github.com/repos/${params.owner}/${params.repo}/releases/${params.releaseId}`
+  const url = `${getApiBaseUrl()}/repos/${params.owner}/${params.repo}/releases/${params.releaseId}`
   const resp = await client.request('GET', url, '', {})
   const statusCode = resp.message.statusCode
   const contents = await resp.readBody()
@@ -284,9 +281,7 @@ async function validateFilenames(files: string[], opts: Options) {
     deleteAssets.map(async asset => {
       core.info(`deleting asset ${asset.name} before uploading`)
       await deleter({
-        owner,
-        repo,
-        assetId: asset.id,
+        url: asset.url,
         githubToken: opts.githubToken
       })
     })
@@ -326,4 +321,7 @@ export function parseUploadUrl(rawurl: string): Release {
     repo: groups['repo'],
     releaseId: groups['release_id']
   }
+}
+export function getApiBaseUrl(): string {
+  return process.env['GITHUB_API_URL'] || 'https://api.github.com'
 }
