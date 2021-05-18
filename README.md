@@ -33,6 +33,7 @@ jobs:
       - uses: shogo82148/actions-upload-release-asset@v1
         with:
           upload_url: ${{ github.event.release.upload_url }}
+          release_url: ${{ github.event.release.url }}
           asset_path: assets.txt
 ```
 
@@ -69,6 +70,7 @@ jobs:
       - uses: shogo82148/actions-upload-release-asset@v1
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
+          release_url: ${{ github.event.release.url }}
           asset_path: assets.txt
 ```
 
@@ -82,6 +84,10 @@ The API token for GitHub.
 ### upload_url
 
 The URL for uploading assets to the release.
+
+### release_url
+
+The URL for the release.
 
 ### asset_path
 
