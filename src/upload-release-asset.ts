@@ -154,11 +154,16 @@ export async function upload(opts: Options): Promise<Outputs> {
 
   const urls = await Promise.all(
     files.map(async file => {
-      const name = canonicalName(opts.assetName || path.basename(file))
+      const original_name = opts.assetName || path.basename(file)
+      const name = canonicalName(original_name)
+      const label = path.basename(original_name, path.extname(original_name))
+
       const content_type =
         opts.assetContentType || mime.lookup(file) || 'application/octet-stream'
       const stat = await fsStats(file)
-      core.info(`uploading ${file} as ${name}: size: ${stat.size}`)
+      core.info(
+        `uploading ${file} as ${name}: size: ${stat.size}, content-type: ${content_type}`
+      )
       const response = await uploader({
         githubToken: opts.githubToken,
         url: opts.uploadUrl,
@@ -167,6 +172,7 @@ export async function upload(opts: Options): Promise<Outputs> {
           'content-length': stat.size
         },
         name: name,
+        label: label,
         data: fs.createReadStream(file)
       })
       core.debug(JSON.stringify(response))
