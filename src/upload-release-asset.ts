@@ -14,6 +14,8 @@ interface Options {
   assetName: string
   assetContentType: string
   overwrite: boolean
+
+  // used as mock for testing
   uploadReleaseAsset?: (
     params: ReposUploadReleaseAssetParams
   ) => Promise<Response<ReposUploadReleaseAssetResponse>>
@@ -35,6 +37,7 @@ interface ReposUploadReleaseAssetParams {
   url: string
   headers: {[key: string]: any}
   name: string
+  label?: string
   data: stream.Readable
   githubToken: string
 }
@@ -43,24 +46,29 @@ interface Outputs {
   browser_download_url: string
 }
 
+const newGitHubClient = (token: string): http.HttpClient => {
+  return new http.HttpClient('shogo82148-actions-upload-release-asset/v1', [], {
+    headers: {
+      Authorization: `token ${token}`,
+      Accept: 'application/vnd.github.v3+json'
+    }
+  })
+}
+
+// minium implementation of upload a release asset API
+// https://docs.github.com/en/rest/reference/repos#upload-a-release-asset
 const uploadReleaseAsset = async (
   params: ReposUploadReleaseAssetParams
 ): Promise<Response<ReposUploadReleaseAssetResponse>> => {
-  const client = new http.HttpClient(
-    'shogo82148-actions-upload-release-asset/v1',
-    [],
-    {
-      headers: {
-        Authorization: `token ${params.githubToken}`,
-        Accept: 'application/vnd.github.v3+json'
-      }
-    }
-  )
+  const client = newGitHubClient(params.githubToken)
   let rawurl = params.url
   rawurl = rawurl.replace(/[{][^}]*[}]$/, '')
   const u = new url.URL(rawurl)
   if (params.name) {
     u.searchParams.append('name', params.name)
+  }
+  if (params.label) {
+    u.searchParams.append('label', params.label)
   }
   const resp = await client.request(
     'POST',
@@ -83,19 +91,12 @@ interface ReposDeleteReleaseAssetParams {
   githubToken: string
 }
 
+// minium implementation of delete a release asset API
+// https://docs.github.com/en/rest/reference/repos#delete-a-release-asset
 const deleteReleaseAsset = async (
   params: ReposDeleteReleaseAssetParams
 ): Promise<void> => {
-  const client = new http.HttpClient(
-    'shogo82148-actions-upload-release-asset/v1',
-    [],
-    {
-      headers: {
-        Authorization: `token ${params.githubToken}`,
-        Accept: 'application/vnd.github.v3+json'
-      }
-    }
-  )
+  const client = newGitHubClient(params.githubToken)
   const resp = await client.request('DELETE', params.url, '', {})
   const statusCode = resp.message.statusCode
   const contents = await resp.readBody()
@@ -129,17 +130,10 @@ interface ReposGetReleaseAsset {
 const getRelease = async (
   params: ReposGetReleaseParams
 ): Promise<Response<ReposGetReleaseResponse>> => {
-  const client = new http.HttpClient(
-    'shogo82148-actions-upload-release-asset/v1',
-    [],
-    {
-      headers: {
-        Authorization: `token ${params.githubToken}`,
-        Accept: 'application/vnd.github.v3+json'
-      }
-    }
-  )
-  const url = `${getApiBaseUrl()}/repos/${params.owner}/${params.repo}/releases/${params.releaseId}`
+  const client = newGitHubClient(params.githubToken)
+  const url = `${getApiBaseUrl()}/repos/${params.owner}/${
+    params.repo
+  }/releases/${params.releaseId}`
   const resp = await client.request('GET', url, '', {})
   const statusCode = resp.message.statusCode
   const contents = await resp.readBody()
@@ -288,9 +282,15 @@ async function validateFilenames(files: string[], opts: Options) {
   )
 }
 
+// https://docs.github.com/en/rest/reference/repos#upload-a-release-asset
+// > GitHub renames asset filenames that have special characters,
+// > non-alphanumeric characters, and leading or trailing periods.
+// > The "List assets for a release" endpoint lists the renamed filenames.
+//
+// we rename the filenames here to avoid being renamed by API
 export function canonicalName(name: string): string {
   name = name.replace(/[,/]/g, '.')
-  name = name.replace(/[^-+@_.a-zA-Z0-9]/g, '',)
+  name = name.replace(/[^-+@_.a-zA-Z0-9]/g, '')
   name = name.replace(/[.]+/g, '.')
   if (name.match(/^[.].+$/)) {
     return 'default' + name.replace(/[.]$/, '')
