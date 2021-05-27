@@ -41,6 +41,8 @@ jobs:
     needs:
       - check-permission
     if: needs.check-permission.outputs.permission == 'write'
+    outputs:
+      id: ${{ steps.create_release.outputs.id }}
     steps:
       - uses: actions/checkout@v2
       - run: npm ci
@@ -49,13 +51,10 @@ jobs:
 
       - name: Create Release
         id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
+        uses: shogo82148/actions-create-release@v1
         with:
           tag_name: test-${{ github.run_id }}
           release_name: Test for ${{ github.run_id }}
-          draft: true
           prerelease: true
           body: |
             https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
@@ -73,10 +72,19 @@ jobs:
           asset_path: lib/*.js
           overwrite: true
 
+  cleanup:
+    if: always()
+    name: cleanup
+    runs-on: ubuntu-latest
+    needs:
+      - integrated
+    steps:
       - name: cleanup
         run: |
           curl -XDELETE -H "Accept: application/vnd.github.v3+json" -H "Authorization: token $GITHUB_TOKEN" \
-            https://api.github.com/repos/${{ github.repository }}/releases/${{ steps.create_release.outputs.id }}
+            "$GITHUB_API_URL/repos/${{ github.repository }}/releases/${{ needs.integrated.outputs.id }}"
+          curl -XDELETE -H "Accept: application/vnd.github.v3+json" -H "Authorization: token $GITHUB_TOKEN" \
+            "$GITHUB_API_URL/repos/${{ github.repository }}/git/refs/tags/test-${{ github.run_id }}"
         if: always()
         env:
           GITHUB_TOKEN: ${{ github.token }}
