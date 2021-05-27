@@ -38,7 +38,7 @@ jobs:
 
 ### Upload assets when a tag has been created
 
-If you want to create a release in your workflow, you can use [actions/create-release](https://github.com/actions/create-release) GitHub Action.
+If you want to create a release in your workflow, you can use [shogo82148/actions-create-release](https://github.com/shogo82148/actions-create-release) GitHub Action.
 
 ```yaml
 on:
@@ -57,14 +57,7 @@ jobs:
 
       - name: Create Release
         id: create_release
-        uses: actions/create-release@v1.0.0
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ github.ref }}
-          release_name: Release ${{ github.ref }}
-          draft: false
-          prerelease: false
+        uses: shogo82148/actions-create-release@v1
 
       - uses: shogo82148/actions-upload-release-asset@v1
         with:
