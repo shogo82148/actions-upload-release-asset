@@ -24,9 +24,23 @@ jobs:
       - run: npm run build
       - run: npm test
 
+  check-permission:
+    name: check permission
+    runs-on: ubuntu-latest
+    outputs:
+      permission: ${{ steps.check.outputs.permission }}
+    steps:
+      - id: check
+        uses: shogo82148/actions-check-permissions@v1
+      - name: the result
+        run: echo ${{ steps.check.outputs.permission }}
+
   integrated:
     name: integrated test
     runs-on: ubuntu-latest
+    needs:
+      - check-permission
+    if: needs.check-permission.outputs.permission == 'write'
     steps:
       - uses: actions/checkout@v2
       - run: npm ci
