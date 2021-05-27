@@ -83,6 +83,7 @@ jobs:
         run: |
           curl -XDELETE -H "Accept: application/vnd.github.v3+json" -H "Authorization: token $GITHUB_TOKEN" \
             "$GITHUB_API_URL/repos/${{ github.repository }}/releases/${{ needs.integrated.outputs.id }}"
+          sleep 5 # it takes a moment to delete the release
           curl -XDELETE -H "Accept: application/vnd.github.v3+json" -H "Authorization: token $GITHUB_TOKEN" \
             "$GITHUB_API_URL/repos/${{ github.repository }}/git/refs/tags/test-${{ github.run_id }}"
         if: always()
