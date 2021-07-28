@@ -3,12 +3,13 @@ import {upload} from './upload-release-asset'
 
 async function run(): Promise<void> {
   try {
-    const githubToken = core.getInput('github_token', {required: true})
-    const uploadUrl = core.getInput('upload_url', {required: true})
-    const assetPath = core.getInput('asset_path', {required: true})
+    const required = {required: true}
+    const githubToken = core.getInput('github_token', required)
+    const uploadUrl = core.getInput('upload_url', required)
+    const assetPath = core.getInput('asset_path', required)
     const assetName = core.getInput('asset_name')
     const assetContentType = core.getInput('asset_content_type')
-    const overwrite = parseBoolean(core.getInput('overwrite'))
+    const overwrite = core.getBooleanInput('overwrite', required)
 
     const output = await upload({
       githubToken,
@@ -22,31 +23,6 @@ async function run(): Promise<void> {
   } catch (error) {
     core.setFailed(error.message)
   }
-}
-
-function parseBoolean(s: string): boolean {
-  // YAML 1.0 compatible boolean values
-  switch (s) {
-    case 'y':
-    case 'Y':
-    case 'yes':
-    case 'Yes':
-    case 'YES':
-    case 'true':
-    case 'True':
-    case 'TRUE':
-      return true
-    case 'n':
-    case 'N':
-    case 'no':
-    case 'No':
-    case 'NO':
-    case 'false':
-    case 'False':
-    case 'FALSE':
-      return false
-  }
-  throw `invalid boolean value: ${s}`
 }
 
 run()
