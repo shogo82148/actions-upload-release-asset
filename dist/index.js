@@ -64,7 +64,7 @@ module.exports = require("tls");
 // We use any as a valid input type
 /* eslint-disable @typescript-eslint/no-explicit-any */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.toCommandValue = void 0;
+exports.toCommandProperties = exports.toCommandValue = void 0;
 /**
  * Sanitizes an input into a string so it can be passed into issueCommand safely
  * @param input input to sanitize into a string
@@ -79,6 +79,25 @@ function toCommandValue(input) {
     return JSON.stringify(input);
 }
 exports.toCommandValue = toCommandValue;
+/**
+ *
+ * @param annotationProperties
+ * @returns The command properties to send with the actual annotation command
+ * See IssueCommandProperties: https://github.com/actions/runner/blob/main/src/Runner.Worker/ActionCommandManager.cs#L646
+ */
+function toCommandProperties(annotationProperties) {
+    if (!Object.keys(annotationProperties).length) {
+        return {};
+    }
+    return {
+        title: annotationProperties.title,
+        line: annotationProperties.startLine,
+        endLine: annotationProperties.endLine,
+        col: annotationProperties.startColumn,
+        endColumn: annotationProperties.endColumn
+    };
+}
+exports.toCommandProperties = toCommandProperties;
 //# sourceMappingURL=utils.js.map
 
 /***/ }),
@@ -1365,42 +1384,36 @@ var __importStar = (this && this.__importStar) || function (mod) {
     __setModuleDefault(result, mod);
     return result;
 };
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 const core = __importStar(__webpack_require__(470));
 const upload_release_asset_1 = __webpack_require__(993);
-function run() {
-    return __awaiter(this, void 0, void 0, function* () {
-        try {
-            const required = { required: true };
-            const githubToken = core.getInput('github_token', required);
-            const uploadUrl = core.getInput('upload_url', required);
-            const assetPath = core.getInput('asset_path', required);
-            const assetName = core.getInput('asset_name');
-            const assetContentType = core.getInput('asset_content_type');
-            const overwrite = core.getBooleanInput('overwrite', required);
-            const output = yield upload_release_asset_1.upload({
-                githubToken,
-                uploadUrl,
-                assetPath,
-                assetName,
-                assetContentType,
-                overwrite
-            });
-            core.setOutput('browser_download_url', output.browser_download_url);
+async function run() {
+    try {
+        const required = { required: true };
+        const githubToken = core.getInput("github_token", required);
+        const uploadUrl = core.getInput("upload_url", required);
+        const assetPath = core.getInput("asset_path", required);
+        const assetName = core.getInput("asset_name");
+        const assetContentType = core.getInput("asset_content_type");
+        const overwrite = core.getBooleanInput("overwrite", required);
+        const output = await (0, upload_release_asset_1.upload)({
+            githubToken,
+            uploadUrl,
+            assetPath,
+            assetName,
+            assetContentType,
+            overwrite,
+        });
+        core.setOutput("browser_download_url", output.browser_download_url);
+    }
+    catch (error) {
+        if (error instanceof Error) {
+            core.setFailed(error);
         }
-        catch (error) {
-            core.setFailed(error.message);
+        else {
+            core.setFailed(`${error}`);
         }
-    });
+    }
 }
 run();
 
@@ -2214,7 +2227,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getState = exports.saveState = exports.group = exports.endGroup = exports.startGroup = exports.info = exports.warning = exports.error = exports.debug = exports.isDebug = exports.setFailed = exports.setCommandEcho = exports.setOutput = exports.getBooleanInput = exports.getMultilineInput = exports.getInput = exports.addPath = exports.setSecret = exports.exportVariable = exports.ExitCode = void 0;
+exports.getState = exports.saveState = exports.group = exports.endGroup = exports.startGroup = exports.info = exports.notice = exports.warning = exports.error = exports.debug = exports.isDebug = exports.setFailed = exports.setCommandEcho = exports.setOutput = exports.getBooleanInput = exports.getMultilineInput = exports.getInput = exports.addPath = exports.setSecret = exports.exportVariable = exports.ExitCode = void 0;
 const command_1 = __webpack_require__(431);
 const file_command_1 = __webpack_require__(102);
 const utils_1 = __webpack_require__(82);
@@ -2392,19 +2405,30 @@ exports.debug = debug;
 /**
  * Adds an error issue
  * @param message error issue message. Errors will be converted to string via toString()
+ * @param properties optional properties to add to the annotation.
  */
-function error(message) {
-    command_1.issue('error', message instanceof Error ? message.toString() : message);
+function error(message, properties = {}) {
+    command_1.issueCommand('error', utils_1.toCommandProperties(properties), message instanceof Error ? message.toString() : message);
 }
 exports.error = error;
 /**
- * Adds an warning issue
+ * Adds a warning issue
  * @param message warning issue message. Errors will be converted to string via toString()
+ * @param properties optional properties to add to the annotation.
  */
-function warning(message) {
-    command_1.issue('warning', message instanceof Error ? message.toString() : message);
+function warning(message, properties = {}) {
+    command_1.issueCommand('warning', utils_1.toCommandProperties(properties), message instanceof Error ? message.toString() : message);
 }
 exports.warning = warning;
+/**
+ * Adds a notice issue
+ * @param message notice issue message. Errors will be converted to string via toString()
+ * @param properties optional properties to add to the annotation.
+ */
+function notice(message, properties = {}) {
+    command_1.issueCommand('notice', utils_1.toCommandProperties(properties), message instanceof Error ? message.toString() : message);
+}
+exports.notice = notice;
 /**
  * Writes info to log with console.log.
  * @param message info message
@@ -4229,15 +4253,6 @@ var __importStar = (this && this.__importStar) || function (mod) {
     __setModuleDefault(result, mod);
     return result;
 };
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getApiBaseUrl = exports.parseUploadUrl = exports.canonicalName = exports.upload = void 0;
 const fs = __importStar(__webpack_require__(747));
@@ -4248,180 +4263,174 @@ const glob = __importStar(__webpack_require__(281));
 const http = __importStar(__webpack_require__(539));
 const mime = __importStar(__webpack_require__(779));
 const newGitHubClient = (token) => {
-    return new http.HttpClient('shogo82148-actions-upload-release-asset/v1', [], {
+    return new http.HttpClient("shogo82148-actions-upload-release-asset/v1", [], {
         headers: {
             Authorization: `token ${token}`,
-            Accept: 'application/vnd.github.v3+json'
-        }
+            Accept: "application/vnd.github.v3+json",
+        },
     });
 };
 // minium implementation of upload a release asset API
 // https://docs.github.com/en/rest/reference/repos#upload-a-release-asset
-const uploadReleaseAsset = (params) => __awaiter(void 0, void 0, void 0, function* () {
+const uploadReleaseAsset = async (params) => {
     const client = newGitHubClient(params.githubToken);
     let rawurl = params.url;
-    rawurl = rawurl.replace(/[{][^}]*[}]$/, '');
+    rawurl = rawurl.replace(/[{][^}]*[}]$/, "");
     const u = new url.URL(rawurl);
     if (params.name) {
-        u.searchParams.append('name', params.name);
+        u.searchParams.append("name", params.name);
     }
     if (params.label) {
-        u.searchParams.append('label', params.label);
+        u.searchParams.append("label", params.label);
     }
-    const resp = yield client.request('POST', u.toString(), params.data, params.headers);
+    const resp = await client.request("POST", u.toString(), params.data, params.headers);
     const statusCode = resp.message.statusCode;
-    const contents = yield resp.readBody();
+    const contents = await resp.readBody();
     if (statusCode !== 201) {
         throw new Error(`unexpected status code: ${statusCode}\n${contents}`);
     }
     return {
-        data: JSON.parse(contents)
+        data: JSON.parse(contents),
     };
-});
+};
 // minium implementation of delete a release asset API
 // https://docs.github.com/en/rest/reference/repos#delete-a-release-asset
-const deleteReleaseAsset = (params) => __awaiter(void 0, void 0, void 0, function* () {
+const deleteReleaseAsset = async (params) => {
     const client = newGitHubClient(params.githubToken);
-    const resp = yield client.request('DELETE', params.url, '', {});
+    const resp = await client.request("DELETE", params.url, "", {});
     const statusCode = resp.message.statusCode;
-    const contents = yield resp.readBody();
+    const contents = await resp.readBody();
     if (statusCode !== 204) {
         throw new Error(`unexpected status code: ${statusCode}\n${contents}`);
     }
     return;
-});
+};
 // minium implementation of get a release API
 // https://docs.github.com/en/rest/reference/repos#get-a-release
-const getRelease = (params) => __awaiter(void 0, void 0, void 0, function* () {
+const getRelease = async (params) => {
     const client = newGitHubClient(params.githubToken);
     const url = `${getApiBaseUrl()}/repos/${params.owner}/${params.repo}/releases/${params.releaseId}`;
-    const resp = yield client.request('GET', url, '', {});
+    const resp = await client.request("GET", url, "", {});
     const statusCode = resp.message.statusCode;
-    const contents = yield resp.readBody();
+    const contents = await resp.readBody();
     if (statusCode !== 200) {
         throw new Error(`unexpected status code: ${statusCode}\n${contents}`);
     }
     return {
-        data: JSON.parse(contents)
+        data: JSON.parse(contents),
     };
-});
-function upload(opts) {
-    return __awaiter(this, void 0, void 0, function* () {
-        const uploader = opts.uploadReleaseAsset || uploadReleaseAsset;
-        const globber = yield glob.create(opts.assetPath);
-        const files = yield globber.glob();
-        yield validateFilenames(files, opts);
-        const urls = yield Promise.all(files.map((file) => __awaiter(this, void 0, void 0, function* () {
-            const name = canonicalName(opts.assetName || path.basename(file));
-            const content_type = opts.assetContentType || mime.lookup(file) || 'application/octet-stream';
-            const stat = yield fsStats(file);
-            core.info(`uploading ${file} as ${name}: size: ${stat.size}`);
-            const response = yield uploader({
-                githubToken: opts.githubToken,
-                url: opts.uploadUrl,
-                headers: {
-                    'content-type': content_type,
-                    'content-length': stat.size
-                },
-                name: name,
-                data: fs.createReadStream(file)
-            });
-            core.debug(JSON.stringify(response));
-            return response.data.browser_download_url;
-        })));
-        return {
-            browser_download_url: urls.join('\n')
-        };
-    });
+};
+async function upload(opts) {
+    const uploader = opts.uploadReleaseAsset || uploadReleaseAsset;
+    const globber = await glob.create(opts.assetPath);
+    const files = await globber.glob();
+    await validateFilenames(files, opts);
+    const urls = await Promise.all(files.map(async (file) => {
+        const name = canonicalName(opts.assetName || path.basename(file));
+        const content_type = opts.assetContentType || mime.lookup(file) || "application/octet-stream";
+        const stat = await fsStats(file);
+        core.info(`uploading ${file} as ${name}: size: ${stat.size}`);
+        const response = await uploader({
+            githubToken: opts.githubToken,
+            url: opts.uploadUrl,
+            headers: {
+                "content-type": content_type,
+                "content-length": stat.size,
+            },
+            name: name,
+            data: fs.createReadStream(file),
+        });
+        core.debug(JSON.stringify(response));
+        return response.data.browser_download_url;
+    }));
+    return {
+        browser_download_url: urls.join("\n"),
+    };
 }
 exports.upload = upload;
-function fsStats(file) {
-    return __awaiter(this, void 0, void 0, function* () {
-        return new Promise((resolve, reject) => {
-            fs.stat(file, (err, stats) => {
-                if (err) {
-                    reject(err);
-                    return;
-                }
-                resolve(stats);
-            });
+async function fsStats(file) {
+    return new Promise((resolve, reject) => {
+        fs.stat(file, (err, stats) => {
+            if (err) {
+                reject(err);
+                return;
+            }
+            resolve(stats);
         });
     });
 }
-function validateFilenames(files, opts) {
-    return __awaiter(this, void 0, void 0, function* () {
-        if (files.length > 1 && opts.assetName !== '') {
-            throw new Error('validation error: cannot upload multiple files with asset_name option');
+async function validateFilenames(files, opts) {
+    if (files.length > 1 && opts.assetName !== "") {
+        throw new Error("validation error: cannot upload multiple files with asset_name option");
+    }
+    // get assets already uploaded
+    const assets = {};
+    const getter = opts.getRelease || getRelease;
+    const { owner, repo, releaseId } = parseUploadUrl(opts.uploadUrl);
+    const release = await getter({
+        owner,
+        repo,
+        releaseId,
+        githubToken: opts.githubToken,
+    });
+    release.data.assets.forEach((asset) => {
+        assets[asset.name] = {
+            name: asset.name,
+            asset: asset,
+            files: [],
+        };
+    });
+    // check duplications
+    const duplications = [];
+    files.forEach((file) => {
+        const name = canonicalName(opts.assetName || path.basename(file));
+        const asset = assets[name];
+        if (asset) {
+            duplications.push(asset);
+            asset.files.push(file);
         }
-        // get assets already uploaded
-        const assets = {};
-        const getter = opts.getRelease || getRelease;
-        const { owner, repo, releaseId } = parseUploadUrl(opts.uploadUrl);
-        const release = yield getter({
-            owner,
-            repo,
-            releaseId,
-            githubToken: opts.githubToken
-        });
-        release.data.assets.forEach(asset => {
-            assets[asset.name] = {
-                name: asset.name,
-                asset: asset,
-                files: []
+        else {
+            assets[name] = {
+                name,
+                files: [file],
             };
-        });
-        // check duplications
-        const duplications = [];
-        files.forEach(file => {
-            const name = canonicalName(opts.assetName || path.basename(file));
-            const asset = assets[name];
-            if (asset) {
-                duplications.push(asset);
-                asset.files.push(file);
-            }
-            else {
-                assets[name] = {
-                    name,
-                    files: [file]
-                };
-            }
-        });
-        // report the result of validation
-        let errorCount = 0;
-        duplications.forEach(item => {
-            if (item.files.length <= 1) {
-                return;
-            }
-            core.error(`validation error: file name "${item.name}" is duplicated. (${item.files.join(', ')})`);
-            errorCount++;
-        });
-        // report the result of validation
-        const deleteAssets = duplications
-            .filter(item => {
-            return item.files.length === 1 && item.asset;
-        })
-            .map(item => item.asset);
-        if (!opts.overwrite) {
-            deleteAssets.forEach(item => {
-                core.error(`validation error: file name "${item.name}" already exists`);
-                errorCount++;
-            });
         }
-        if (errorCount > 0) {
-            throw new Error('validation error');
-        }
-        if (!opts.overwrite || deleteAssets.length === 0) {
+    });
+    // report the result of validation
+    let errorCount = 0;
+    duplications.forEach((item) => {
+        if (item.files.length <= 1) {
             return;
         }
-        const deleter = opts.deleteReleaseAsset || deleteReleaseAsset;
-        yield Promise.all(deleteAssets.map((asset) => __awaiter(this, void 0, void 0, function* () {
-            core.info(`deleting asset ${asset.name} before uploading`);
-            yield deleter({
-                url: asset.url,
-                githubToken: opts.githubToken
-            });
-        })));
+        core.error(`validation error: file name "${item.name}" is duplicated. (${item.files.join(", ")})`);
+        errorCount++;
     });
+    // report the result of validation
+    const deleteAssets = duplications
+        .filter((item) => {
+        return item.files.length === 1 && item.asset;
+    })
+        .map((item) => item.asset);
+    if (!opts.overwrite) {
+        deleteAssets.forEach((item) => {
+            core.error(`validation error: file name "${item.name}" already exists`);
+            errorCount++;
+        });
+    }
+    if (errorCount > 0) {
+        throw new Error("validation error");
+    }
+    if (!opts.overwrite || deleteAssets.length === 0) {
+        return;
+    }
+    const deleter = opts.deleteReleaseAsset || deleteReleaseAsset;
+    await Promise.all(deleteAssets.map(async (asset) => {
+        core.info(`deleting asset ${asset.name} before uploading`);
+        await deleter({
+            url: asset.url,
+            githubToken: opts.githubToken,
+        });
+    }));
 }
 // https://docs.github.com/en/rest/reference/repos#upload-a-release-asset
 // > GitHub renames asset filenames that have special characters,
@@ -4430,19 +4439,19 @@ function validateFilenames(files, opts) {
 //
 // we rename the filenames here to avoid being renamed by API
 function canonicalName(name) {
-    name = name.replace(/[,/]/g, '.');
-    name = name.replace(/[^-+@_.a-zA-Z0-9]/g, '');
-    name = name.replace(/[.]+/g, '.');
+    name = name.replace(/[,/]/g, ".");
+    name = name.replace(/[^-+@_.a-zA-Z0-9]/g, "");
+    name = name.replace(/[.]+/g, ".");
     if (name.match(/^[.].+$/)) {
-        return 'default' + name.replace(/[.]$/, '');
+        return "default" + name.replace(/[.]$/, "");
     }
     if (name.match(/^[^.]+[.]$/)) {
-        return 'default.' + name.replace(/[.]$/, '');
+        return "default." + name.replace(/[.]$/, "");
     }
-    return name.replace(/[.]$/, '');
+    return name.replace(/[.]$/, "");
 }
 exports.canonicalName = canonicalName;
-const regexUploadUrl = new RegExp('/repos/(?<owner>[^/]+)/(?<repo>[^/]+)/releases/(?<release_id>[0-9]+)/');
+const regexUploadUrl = new RegExp("/repos/(?<owner>[^/]+)/(?<repo>[^/]+)/releases/(?<release_id>[0-9]+)/");
 function parseUploadUrl(rawurl) {
     const match = rawurl.match(regexUploadUrl);
     const groups = match === null || match === void 0 ? void 0 : match.groups;
@@ -4450,14 +4459,14 @@ function parseUploadUrl(rawurl) {
         throw new Error(`failed to parse the upload url: ${rawurl}`);
     }
     return {
-        owner: groups['owner'],
-        repo: groups['repo'],
-        releaseId: groups['release_id']
+        owner: groups["owner"],
+        repo: groups["repo"],
+        releaseId: groups["release_id"],
     };
 }
 exports.parseUploadUrl = parseUploadUrl;
 function getApiBaseUrl() {
-    return process.env['GITHUB_API_URL'] || 'https://api.github.com';
+    return process.env["GITHUB_API_URL"] || "https://api.github.com";
 }
 exports.getApiBaseUrl = getApiBaseUrl;
 
