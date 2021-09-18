@@ -1,4 +1,8 @@
-import {upload, parseUploadUrl, canonicalName} from '../src/upload-release-asset'
+import {
+  upload,
+  parseUploadUrl,
+  canonicalName
+} from '../src/upload-release-asset'
 
 test('Upload Release Asset', async () => {
   const uploadUrl =
