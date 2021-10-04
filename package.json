@@ -28,7 +28,7 @@
     "@actions/core": "^1.6.0",
     "@actions/glob": "^0.2.0",
     "@actions/http-client": "^1.0.11",
-    "mime-types": "^2.1.32"
+    "mime-types": "^2.1.33"
   },
   "devDependencies": {
     "@types/jest": "^27.0.2",
