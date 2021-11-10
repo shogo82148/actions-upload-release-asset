@@ -156,7 +156,7 @@ export async function upload(opts: Options): Promise<Outputs> {
           "content-type": content_type,
           "content-length": stat.size,
         },
-        name: name,
+        name,
         data: fs.createReadStream(file),
       });
       core.debug(JSON.stringify(response));
@@ -204,7 +204,7 @@ async function validateFilenames(files: string[], opts: Options) {
   release.data.assets.forEach((asset) => {
     assets[asset.name] = {
       name: asset.name,
-      asset: asset,
+      asset,
       files: [],
     };
   });
@@ -279,10 +279,10 @@ export function canonicalName(name: string): string {
   name = name.replace(/[^-+@_.a-zA-Z0-9]/g, "");
   name = name.replace(/[.]+/g, ".");
   if (name.match(/^[.].+$/)) {
-    return "default" + name.replace(/[.]$/, "");
+    return `default${name.replace(/[.]$/, "")}`;
   }
   if (name.match(/^[^.]+[.]$/)) {
-    return "default." + name.replace(/[.]$/, "");
+    return `default.${name.replace(/[.]$/, "")}`;
   }
   return name.replace(/[.]$/, "");
 }
