@@ -208,12 +208,13 @@ async function validateFilenames(files: string[], opts: Options): Promise<void> 
       files: [],
     };
   }
+
   // check duplications
   const duplications: AssetOrFile[] = [];
   for (const file of files) {
     const name = canonicalName(opts.assetName || path.basename(file));
-    const asset = assets[name];
-    if (asset) {
+    if (name in assets) {
+      const asset = assets[name];
       duplications.push(asset);
       asset.files.push(file);
     } else {
@@ -227,13 +228,12 @@ async function validateFilenames(files: string[], opts: Options): Promise<void> 
   // report the result of validation
   let errorCount = 0;
   for (const item of duplications) {
-    if (item.files.length <= 1) {
-      return;
+    if (item.files.length > 1) {
+      core.error(
+        `validation error: file name "${item.name}" is duplicated. (${item.files.join(", ")})`
+      );
+      errorCount++;
     }
-    core.error(
-      `validation error: file name "${item.name}" is duplicated. (${item.files.join(", ")})`
-    );
-    errorCount++;
   }
 
   // report the result of validation
