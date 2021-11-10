@@ -1,11 +1,11 @@
-import * as fs from "fs";
-import * as stream from "stream";
-import * as path from "path";
-import * as url from "url";
 import * as core from "@actions/core";
+import * as fs from "fs";
 import * as glob from "@actions/glob";
 import * as http from "@actions/http-client";
 import * as mime from "mime-types";
+import * as path from "path";
+import * as stream from "stream";
+import * as url from "url";
 
 interface Options {
   githubToken: string;
@@ -122,10 +122,10 @@ const getRelease = async (
   params: ReposGetReleaseParams
 ): Promise<Response<ReposGetReleaseResponse>> => {
   const client = newGitHubClient(params.githubToken);
-  const url = `${getApiBaseUrl()}/repos/${params.owner}/${params.repo}/releases/${
+  const apiUrl = `${getApiBaseUrl()}/repos/${params.owner}/${params.repo}/releases/${
     params.releaseId
   }`;
-  const resp = await client.request("GET", url, "", {});
+  const resp = await client.request("GET", apiUrl, "", {});
   const statusCode = resp.message.statusCode;
   const contents = await resp.readBody();
   if (statusCode !== 200) {
@@ -180,7 +180,7 @@ async function fsStats(file: string): Promise<fs.Stats> {
   });
 }
 
-async function validateFilenames(files: string[], opts: Options) {
+async function validateFilenames(files: string[], opts: Options): Promise<void> {
   if (files.length > 1 && opts.assetName !== "") {
     throw new Error("validation error: cannot upload multiple files with asset_name option");
   }
@@ -201,17 +201,16 @@ async function validateFilenames(files: string[], opts: Options) {
     releaseId,
     githubToken: opts.githubToken,
   });
-  release.data.assets.forEach((asset) => {
+  for (const asset of release.data.assets) {
     assets[asset.name] = {
       name: asset.name,
       asset,
       files: [],
     };
-  });
-
+  }
   // check duplications
   const duplications: AssetOrFile[] = [];
-  files.forEach((file) => {
+  for (const file of files) {
     const name = canonicalName(opts.assetName || path.basename(file));
     const asset = assets[name];
     if (asset) {
@@ -223,11 +222,11 @@ async function validateFilenames(files: string[], opts: Options) {
         files: [file],
       };
     }
-  });
+  }
 
   // report the result of validation
   let errorCount = 0;
-  duplications.forEach((item) => {
+  for (const item of duplications) {
     if (item.files.length <= 1) {
       return;
     }
@@ -235,19 +234,20 @@ async function validateFilenames(files: string[], opts: Options) {
       `validation error: file name "${item.name}" is duplicated. (${item.files.join(", ")})`
     );
     errorCount++;
-  });
+  }
 
   // report the result of validation
-  const deleteAssets = duplications
-    .filter((item) => {
-      return item.files.length === 1 && item.asset;
-    })
-    .map((item) => item.asset!);
+  const deleteAssets: ReposGetReleaseAsset[] = [];
+  for (const item of duplications) {
+    if (item.files.length === 1 && item.asset) {
+      deleteAssets.push(item.asset);
+    }
+  }
   if (!opts.overwrite) {
-    deleteAssets.forEach((item) => {
+    for (const item of deleteAssets) {
       core.error(`validation error: file name "${item.name}" already exists`);
       errorCount++;
-    });
+    }
   }
   if (errorCount > 0) {
     throw new Error("validation error");
