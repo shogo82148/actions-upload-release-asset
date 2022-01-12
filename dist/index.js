@@ -4612,10 +4612,10 @@ exports.canonicalName = canonicalName;
 const regexUploadUrl = new RegExp("/repos/(?<owner>[^/]+)/(?<repo>[^/]+)/releases/(?<release_id>[0-9]+)/");
 function parseUploadUrl(rawurl) {
     const match = rawurl.match(regexUploadUrl);
-    const groups = match === null || match === void 0 ? void 0 : match.groups;
-    if (!groups) {
+    if (!match || !match.groups) {
         throw new Error(`failed to parse the upload url: ${rawurl}`);
     }
+    const groups = match.groups;
     return {
         owner: groups["owner"],
         repo: groups["repo"],
