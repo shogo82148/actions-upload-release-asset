@@ -298,10 +298,10 @@ const regexUploadUrl = new RegExp(
 );
 export function parseUploadUrl(rawurl: string): Release {
   const match = rawurl.match(regexUploadUrl);
-  const groups = match?.groups;
-  if (!groups) {
+  if (!match || !match.groups) {
     throw new Error(`failed to parse the upload url: ${rawurl}`);
   }
+  const groups = match.groups;
   return {
     owner: groups["owner"],
     repo: groups["repo"],
