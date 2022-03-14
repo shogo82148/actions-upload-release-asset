@@ -20,7 +20,7 @@ jobs:
       - name: disable auto CRLF
         run: git config --global core.autoCRLF false
       - uses: actions/checkout@v3
-      - uses: actions/setup-node@v2
+      - uses: actions/setup-node@v3
         with:
           node-version: "16.x"
           cache: 'npm'
@@ -49,7 +49,7 @@ jobs:
       id: ${{ steps.create_release.outputs.id }}
     steps:
       - uses: actions/checkout@v3
-      - uses: actions/setup-node@v2
+      - uses: actions/setup-node@v3
         with:
           node-version: "16.x"
           cache: 'npm'
