@@ -34,7 +34,7 @@
     "@types/jest": "^28.1.8",
     "@types/mime-types": "^2.1.1",
     "@types/node": "^16.18.3",
-    "@typescript-eslint/parser": "^5.52.0",
+    "@typescript-eslint/parser": "^5.53.0",
     "@zeit/ncc": "^0.22.3",
     "eslint": "^8.34.0",
     "eslint-plugin-github": "^4.6.1",
