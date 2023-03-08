@@ -1,6 +1,6 @@
 {
   "name": "actions-upload-release-asset",
-  "version": "1.6.3",
+  "version": "1.6.4",
   "private": true,
   "description": "Yet Another Upload Release Asset Action",
   "main": "lib/main.js",
