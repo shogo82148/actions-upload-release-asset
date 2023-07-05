@@ -5609,13 +5609,14 @@ const url = __importStar(__webpack_require__(835));
 const newGitHubClient = (token) => {
     return new http.HttpClient("shogo82148-actions-upload-release-asset/v1", [], {
         headers: {
-            Authorization: `token ${token}`,
-            Accept: "application/vnd.github.v3+json",
+            Authorization: `Bearer ${token}`,
+            Accept: "application/vnd.github+json",
+            "X-GitHub-Api-Version": "2022-11-28",
         },
     });
 };
-// minium implementation of upload a release asset API
-// https://docs.github.com/en/rest/reference/repos#upload-a-release-asset
+// minium implementation of upload a release asset API.
+// https://docs.github.com/en/rest/releases/assets?apiVersion=2022-11-28#upload-a-release-asset
 const uploadReleaseAsset = async (params) => {
     const client = newGitHubClient(params.githubToken);
     let rawurl = params.url;
@@ -5637,8 +5638,8 @@ const uploadReleaseAsset = async (params) => {
         data: JSON.parse(contents),
     };
 };
-// minium implementation of delete a release asset API
-// https://docs.github.com/en/rest/reference/repos#delete-a-release-asset
+// minium implementation of delete a release asset API.
+// https://docs.github.com/en/rest/releases/assets?apiVersion=2022-11-28#delete-a-release-asset
 const deleteReleaseAsset = async (params) => {
     const client = newGitHubClient(params.githubToken);
     const resp = await client.request("DELETE", params.url, "", {});
@@ -5649,8 +5650,8 @@ const deleteReleaseAsset = async (params) => {
     }
     return;
 };
-// minium implementation of get a release API
-// https://docs.github.com/en/rest/reference/repos#get-a-release
+// minium implementation of get a release API.
+// https://docs.github.com/en/rest/releases/releases?apiVersion=2022-11-28#get-a-release
 const getRelease = async (params) => {
     const client = newGitHubClient(params.githubToken);
     const apiUrl = `${getApiBaseUrl()}/repos/${params.owner}/${params.repo}/releases/${params.releaseId}`;
@@ -5776,12 +5777,12 @@ async function validateFilenames(files, opts) {
         });
     }));
 }
-// https://docs.github.com/en/rest/reference/repos#upload-a-release-asset
+// we rename the filenames here to avoid being renamed by API.
+//
+// https://docs.github.com/en/rest/releases/assets?apiVersion=2022-11-28#upload-a-release-asset
 // > GitHub renames asset filenames that have special characters,
 // > non-alphanumeric characters, and leading or trailing periods.
 // > The "List assets for a release" endpoint lists the renamed filenames.
-//
-// we rename the filenames here to avoid being renamed by API
 function canonicalName(name) {
     name = name.replace(/[,/]/g, ".");
     name = name.replace(/[^-+@_.a-zA-Z0-9]/g, "");
