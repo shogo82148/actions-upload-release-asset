@@ -17,6 +17,8 @@ updates:
         patterns:
           - "jest"
           - "jest-circus"
+    unknown-key:
+      foo-bar: "baz"
 
   # Maintain dependencies for GitHub Actions
   - package-ecosystem: "github-actions"
