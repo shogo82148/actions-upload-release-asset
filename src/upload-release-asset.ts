@@ -47,14 +47,15 @@ interface Outputs {
 const newGitHubClient = (token: string): http.HttpClient => {
   return new http.HttpClient("shogo82148-actions-upload-release-asset/v1", [], {
     headers: {
-      Authorization: `token ${token}`,
-      Accept: "application/vnd.github.v3+json",
+      Authorization: `Bearer ${token}`,
+      Accept: "application/vnd.github+json",
+      "X-GitHub-Api-Version": "2022-11-28",
     },
   });
 };
 
-// minium implementation of upload a release asset API
-// https://docs.github.com/en/rest/reference/repos#upload-a-release-asset
+// minium implementation of upload a release asset API.
+// https://docs.github.com/en/rest/releases/assets?apiVersion=2022-11-28#upload-a-release-asset
 const uploadReleaseAsset = async (
   params: ReposUploadReleaseAssetParams
 ): Promise<Response<ReposUploadReleaseAssetResponse>> => {
@@ -84,8 +85,8 @@ interface ReposDeleteReleaseAssetParams {
   githubToken: string;
 }
 
-// minium implementation of delete a release asset API
-// https://docs.github.com/en/rest/reference/repos#delete-a-release-asset
+// minium implementation of delete a release asset API.
+// https://docs.github.com/en/rest/releases/assets?apiVersion=2022-11-28#delete-a-release-asset
 const deleteReleaseAsset = async (params: ReposDeleteReleaseAssetParams): Promise<void> => {
   const client = newGitHubClient(params.githubToken);
   const resp = await client.request("DELETE", params.url, "", {});
@@ -116,8 +117,8 @@ interface ReposGetReleaseAsset {
   name: string;
 }
 
-// minium implementation of get a release API
-// https://docs.github.com/en/rest/reference/repos#get-a-release
+// minium implementation of get a release API.
+// https://docs.github.com/en/rest/releases/releases?apiVersion=2022-11-28#get-a-release
 const getRelease = async (
   params: ReposGetReleaseParams
 ): Promise<Response<ReposGetReleaseResponse>> => {
@@ -268,12 +269,12 @@ async function validateFilenames(files: string[], opts: Options): Promise<void> 
   );
 }
 
-// https://docs.github.com/en/rest/reference/repos#upload-a-release-asset
+// we rename the filenames here to avoid being renamed by API.
+//
+// https://docs.github.com/en/rest/releases/assets?apiVersion=2022-11-28#upload-a-release-asset
 // > GitHub renames asset filenames that have special characters,
 // > non-alphanumeric characters, and leading or trailing periods.
 // > The "List assets for a release" endpoint lists the renamed filenames.
-//
-// we rename the filenames here to avoid being renamed by API
 export function canonicalName(name: string): string {
   name = name.replace(/[,/]/g, ".");
   name = name.replace(/[^-+@_.a-zA-Z0-9]/g, "");
