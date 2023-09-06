@@ -9,9 +9,12 @@ updates:
       interval: "daily"
     open-pull-requests-limit: 10
     ignore:
-      # update too often, ignore patch releases
       - dependency-name: "@types/node"
-        update-types: ["version-update:semver-patch"]
+        update-types:
+          # major version must sync with nodejs version
+          - "version-update:semver-major"
+          # update too often, ignore patch releases
+          - "version-update:semver-patch"
 
   # Maintain dependencies for GitHub Actions
   - package-ecosystem: "github-actions"
