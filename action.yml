@@ -1,33 +1,33 @@
-name: 'Yet Another Upload Release Asset Action'
-description: 'Yet Another Upload Release Asset Action'
-author: 'Ichinose Shogo'
+name: "Yet Another Upload Release Asset Action"
+description: "Yet Another Upload Release Asset Action"
+author: "Ichinose Shogo"
 inputs:
   github_token:
-    description: 'The API token for GitHub'
+    description: "The API token for GitHub"
     required: true
     default: "${{ github.token }}"
   upload_url:
-    description: 'The URL for uploading assets to the release'
+    description: "The URL for uploading assets to the release"
     required: true
   asset_path:
-    description: 'The path to the asset you want to upload'
+    description: "The path to the asset you want to upload"
     required: true
   asset_name:
-    description: 'The name of the asset you want to upload'
+    description: "The name of the asset you want to upload"
     required: false
   asset_content_type:
-    description: 'The content-type of the asset you want to upload. See the supported Media Types here: https://www.iana.org/assignments/media-types/media-types.xhtml for more information'
+    description: "The content-type of the asset you want to upload. See the supported Media Types here: https://www.iana.org/assignments/media-types/media-types.xhtml for more information"
     required: false
   overwrite:
-    description: 'If an asset with the same name already exists, overwrite it (Default: false)'
+    description: "If an asset with the same name already exists, overwrite it (Default: false)"
     required: false
     default: false
 outputs:
   browser_download_url:
-    description: 'The URL users can navigate to in order to download the uploaded asset'
+    description: "The URL users can navigate to in order to download the uploaded asset"
 runs:
-  using: 'node16'
-  main: 'dist/index.js'
+  using: "node20"
+  main: "dist/index.js"
 branding:
-  icon: 'package'
-  color: 'gray-dark'
+  icon: "package"
+  color: "gray-dark"
