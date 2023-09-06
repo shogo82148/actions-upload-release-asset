@@ -30,7 +30,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       # steps for building assets
       - run: echo "REPLACE ME!" > assets.txt
@@ -55,7 +55,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       # steps for building assets
       - run: echo "REPLACE ME!" > assets.txt
