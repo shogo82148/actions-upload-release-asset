@@ -9,7 +9,7 @@ jobs:
 
       - uses: actions/setup-node@v3
         with:
-          node-version: "16.x"
+          node-version: "20.x"
           cache: 'npm'
       - run: npm ci
       - uses: reviewdog/action-eslint@v1
