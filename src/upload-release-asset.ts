@@ -17,7 +17,7 @@ interface Options {
 
   // used as mock for testing
   uploadReleaseAsset?: (
-    params: ReposUploadReleaseAssetParams
+    params: ReposUploadReleaseAssetParams,
   ) => Promise<Response<ReposUploadReleaseAssetResponse>>;
   getRelease?: (params: ReposGetReleaseParams) => Promise<Response<ReposGetReleaseResponse>>;
   deleteReleaseAsset?: (params: ReposDeleteReleaseAssetParams) => Promise<void>;
@@ -33,7 +33,7 @@ interface ReposUploadReleaseAssetResponse {
 
 interface ReposUploadReleaseAssetParams {
   url: string;
-  headers: { [key: string]: any };
+  headers: Record<string, number | string | string[]>;
   name: string;
   label?: string;
   data: stream.Readable;
@@ -57,7 +57,7 @@ const newGitHubClient = (token: string): http.HttpClient => {
 // minium implementation of upload a release asset API.
 // https://docs.github.com/en/rest/releases/assets?apiVersion=2022-11-28#upload-a-release-asset
 const uploadReleaseAsset = async (
-  params: ReposUploadReleaseAssetParams
+  params: ReposUploadReleaseAssetParams,
 ): Promise<Response<ReposUploadReleaseAssetResponse>> => {
   const client = newGitHubClient(params.githubToken);
   let rawurl = params.url;
@@ -120,7 +120,7 @@ interface ReposGetReleaseAsset {
 // minium implementation of get a release API.
 // https://docs.github.com/en/rest/releases/releases?apiVersion=2022-11-28#get-a-release
 const getRelease = async (
-  params: ReposGetReleaseParams
+  params: ReposGetReleaseParams,
 ): Promise<Response<ReposGetReleaseResponse>> => {
   const client = newGitHubClient(params.githubToken);
   const apiUrl = `${getApiBaseUrl()}/repos/${params.owner}/${params.repo}/releases/${
@@ -162,7 +162,7 @@ export async function upload(opts: Options): Promise<Outputs> {
       });
       core.debug(JSON.stringify(response));
       return response.data.browser_download_url;
-    })
+    }),
   );
   return {
     browser_download_url: urls.join("\n"),
@@ -193,7 +193,7 @@ async function validateFilenames(files: string[], opts: Options): Promise<void> 
   }
 
   // get assets already uploaded
-  const assets: { [name: string]: AssetOrFile } = {};
+  const assets: Record<string, AssetOrFile> = {};
   const getter = opts.getRelease || getRelease;
   const { owner, repo, releaseId } = parseUploadUrl(opts.uploadUrl);
   const release = await getter({
@@ -231,7 +231,7 @@ async function validateFilenames(files: string[], opts: Options): Promise<void> 
   for (const item of duplications) {
     if (item.files.length > 1) {
       core.error(
-        `validation error: file name "${item.name}" is duplicated. (${item.files.join(", ")})`
+        `validation error: file name "${item.name}" is duplicated. (${item.files.join(", ")})`,
       );
       errorCount++;
     }
@@ -265,7 +265,7 @@ async function validateFilenames(files: string[], opts: Options): Promise<void> 
         url: asset.url,
         githubToken: opts.githubToken,
       });
-    })
+    }),
   );
 }
 
@@ -295,7 +295,7 @@ interface Release {
 }
 
 const regexUploadUrl = new RegExp(
-  "/repos/(?<owner>[^/]+)/(?<repo>[^/]+)/releases/(?<release_id>[0-9]+)/"
+  "/repos/(?<owner>[^/]+)/(?<repo>[^/]+)/releases/(?<release_id>[0-9]+)/",
 );
 export function parseUploadUrl(rawurl: string): Release {
   const match = rawurl.match(regexUploadUrl);
