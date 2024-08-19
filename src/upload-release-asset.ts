@@ -33,7 +33,7 @@ interface ReposUploadReleaseAssetResponse {
 
 interface ReposUploadReleaseAssetParams {
   url: string;
-  headers: Record<string, any>; // eslint-disable-line @typescript-eslint/no-explicit-any
+  headers: Record<string, number | string | string[]>;
   name: string;
   label?: string;
   data: stream.Readable;
