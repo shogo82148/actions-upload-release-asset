@@ -31,7 +31,7 @@
     "mime-types": "^2.1.35"
   },
   "devDependencies": {
-    "@eslint/js": "^9.9.1",
+    "@eslint/js": "^9.10.0",
     "@types/eslint__js": "^8.42.3",
     "@types/jest": "^29.5.12",
     "@types/mime-types": "^2.1.4",
