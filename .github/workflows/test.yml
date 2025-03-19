@@ -23,7 +23,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version-file: .node-version
-          cache: 'npm'
+          cache: "npm"
       - run: npm ci
       - run: npm run build
       - run: npm test
@@ -49,14 +49,6 @@ jobs:
       id: ${{ steps.create_release.outputs.id }}
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version-file: .node-version
-          cache: 'npm'
-      - run: npm ci
-      - run: npm run build
-      - run: npm run pack
-
       - name: Create Release
         id: create_release
         uses: shogo82148/actions-create-release@v1
