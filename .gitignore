@@ -2,7 +2,6 @@
 /node_modules/
 /bin/
 /lib/
-/dist/
 
 # Rest pulled from https://github.com/github/gitignore/blob/master/Node.gitignore
 # Logs
