@@ -26,7 +26,7 @@ outputs:
   browser_download_url:
     description: "The URL users can navigate to in order to download the uploaded asset"
 runs:
-  using: "node20"
+  using: "node24"
   main: "dist/index.js"
 branding:
   icon: "package"
