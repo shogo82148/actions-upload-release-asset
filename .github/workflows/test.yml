@@ -25,7 +25,6 @@ jobs:
           node-version-file: .node-version
           cache: "npm"
       - run: npm ci
-      - run: npm run build
       - run: npm test
 
   check-permission:
