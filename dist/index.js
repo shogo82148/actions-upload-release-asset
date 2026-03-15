@@ -42970,12 +42970,12 @@ const newGitHubClient = (token) => {
         headers: {
             Authorization: `Bearer ${token}`,
             Accept: "application/vnd.github+json",
-            "X-GitHub-Api-Version": "2022-11-28",
+            "X-GitHub-Api-Version": "2026-03-10",
         },
     });
 };
 // minium implementation of upload a release asset API.
-// https://docs.github.com/en/rest/releases/assets?apiVersion=2022-11-28#upload-a-release-asset
+// https://docs.github.com/en/rest/releases/assets?apiVersion=2026-03-10#upload-a-release-asset
 const uploadReleaseAsset = async (params) => {
     const client = newGitHubClient(params.githubToken);
     let rawurl = params.url;
@@ -42998,7 +42998,7 @@ const uploadReleaseAsset = async (params) => {
     };
 };
 // minium implementation of delete a release asset API.
-// https://docs.github.com/en/rest/releases/assets?apiVersion=2022-11-28#delete-a-release-asset
+// https://docs.github.com/en/rest/releases/assets?apiVersion=2026-03-10#delete-a-release-asset
 const deleteReleaseAsset = async (params) => {
     const client = newGitHubClient(params.githubToken);
     const resp = await client.request("DELETE", params.url, "", {});
@@ -43010,7 +43010,7 @@ const deleteReleaseAsset = async (params) => {
     return;
 };
 // minium implementation of get a release API.
-// https://docs.github.com/en/rest/releases/releases?apiVersion=2022-11-28#get-a-release
+// https://docs.github.com/en/rest/releases/releases?apiVersion=2026-03-10#get-a-release
 const getRelease = async (params) => {
     const client = newGitHubClient(params.githubToken);
     const apiUrl = `${getApiBaseUrl()}/repos/${params.owner}/${params.repo}/releases/${params.releaseId}`;
@@ -43137,7 +43137,7 @@ async function validateFilenames(files, opts) {
 }
 // we rename the filenames here to avoid being renamed by API.
 //
-// https://docs.github.com/en/rest/releases/assets?apiVersion=2022-11-28#upload-a-release-asset
+// https://docs.github.com/en/rest/releases/assets?apiVersion=2026-03-10#upload-a-release-asset
 // > GitHub renames asset filenames that have special characters,
 // > non-alphanumeric characters, and leading or trailing periods.
 // > The "List assets for a release" endpoint lists the renamed filenames.

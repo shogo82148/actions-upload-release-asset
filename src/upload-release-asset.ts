@@ -49,13 +49,13 @@ const newGitHubClient = (token: string): http.HttpClient => {
     headers: {
       Authorization: `Bearer ${token}`,
       Accept: "application/vnd.github+json",
-      "X-GitHub-Api-Version": "2022-11-28",
+      "X-GitHub-Api-Version": "2026-03-10",
     },
   });
 };
 
 // minium implementation of upload a release asset API.
-// https://docs.github.com/en/rest/releases/assets?apiVersion=2022-11-28#upload-a-release-asset
+// https://docs.github.com/en/rest/releases/assets?apiVersion=2026-03-10#upload-a-release-asset
 const uploadReleaseAsset = async (
   params: ReposUploadReleaseAssetParams,
 ): Promise<Response<ReposUploadReleaseAssetResponse>> => {
@@ -86,7 +86,7 @@ interface ReposDeleteReleaseAssetParams {
 }
 
 // minium implementation of delete a release asset API.
-// https://docs.github.com/en/rest/releases/assets?apiVersion=2022-11-28#delete-a-release-asset
+// https://docs.github.com/en/rest/releases/assets?apiVersion=2026-03-10#delete-a-release-asset
 const deleteReleaseAsset = async (params: ReposDeleteReleaseAssetParams): Promise<void> => {
   const client = newGitHubClient(params.githubToken);
   const resp = await client.request("DELETE", params.url, "", {});
@@ -118,7 +118,7 @@ interface ReposGetReleaseAsset {
 }
 
 // minium implementation of get a release API.
-// https://docs.github.com/en/rest/releases/releases?apiVersion=2022-11-28#get-a-release
+// https://docs.github.com/en/rest/releases/releases?apiVersion=2026-03-10#get-a-release
 const getRelease = async (
   params: ReposGetReleaseParams,
 ): Promise<Response<ReposGetReleaseResponse>> => {
@@ -271,7 +271,7 @@ async function validateFilenames(files: string[], opts: Options): Promise<void> 
 
 // we rename the filenames here to avoid being renamed by API.
 //
-// https://docs.github.com/en/rest/releases/assets?apiVersion=2022-11-28#upload-a-release-asset
+// https://docs.github.com/en/rest/releases/assets?apiVersion=2026-03-10#upload-a-release-asset
 // > GitHub renames asset filenames that have special characters,
 // > non-alphanumeric characters, and leading or trailing periods.
 // > The "List assets for a release" endpoint lists the renamed filenames.

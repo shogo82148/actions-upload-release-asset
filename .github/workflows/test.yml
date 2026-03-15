@@ -80,11 +80,12 @@ jobs:
     steps:
       - name: cleanup
         run: |
-          curl -XDELETE -H "Accept: application/vnd.github.v3+json" -H "Authorization: token $GITHUB_TOKEN" \
-            "$GITHUB_API_URL/repos/${{ github.repository }}/releases/${{ needs.integrated.outputs.id }}"
+          gh api -X DELETE -H "Accept: application/vnd.github+json" -H "X-GitHub-Api-Version: 2026-03-10" \
+            "$GITHUB_API_URL/repos/$GITHUB_REPOSITORY/releases/$RELEASE_ID"
           sleep 5 # it takes a moment to delete the release
-          curl -XDELETE -H "Accept: application/vnd.github.v3+json" -H "Authorization: token $GITHUB_TOKEN" \
-            "$GITHUB_API_URL/repos/${{ github.repository }}/git/refs/tags/test-${{ github.run_id }}"
+          gh api -X DELETE -H "Accept: application/vnd.github+json" -H "X-GitHub-Api-Version: 2026-03-10" \
+            "$GITHUB_API_URL/repos/$GITHUB_REPOSITORY/git/refs/tags/test-$GITHUB_RUN_ID"
         if: always()
         env:
-          GITHUB_TOKEN: ${{ github.token }}
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_ID: ${{ needs.integrated.outputs.id }}
