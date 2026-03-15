@@ -2,7 +2,7 @@
 
 ![test](https://github.com/shogo82148/actions-upload-release-asset/workflows/test/badge.svg)
 
-This GitHub Action uploads release assets using [Upload a release asset](https://docs.github.com/en/rest/releases/assets?apiVersion=2022-11-28#upload-a-release-asset).
+This GitHub Action uploads release assets using [Upload a release asset](https://docs.github.com/en/rest/releases/assets?apiVersion=2026-03-10#upload-a-release-asset).
 [actions/upload-release-asset] is great, but it is no longer maintained.
 So, I create this action.
 
