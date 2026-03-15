@@ -6,15 +6,6 @@
     "isolatedModules": true,
     "noEmit": true
   },
-  "exclude": [
-    "dist",
-    "node_modules"
-  ],
-  "include": [
-    "__tests__",
-    "src",
-    "eslint.config.mjs",
-    "jest.config.js",
-    "rollup.config.ts"
-  ]
+  "exclude": ["dist", "node_modules"],
+  "include": ["__tests__", "src", "eslint.config.mjs", "jest.config.js", "rollup.config.ts"]
 }
