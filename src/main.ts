@@ -1,7 +1,12 @@
 import * as core from "@actions/core";
-import { upload } from "./upload-release-asset";
+import { upload } from "./upload-release-asset.js";
 
-async function run(): Promise<void> {
+/**
+ * The main function for the action.
+ *
+ * @returns Resolves when the action is complete.
+ */
+export async function run(): Promise<void> {
   try {
     const required = { required: true };
     const githubToken = core.getInput("github_token", required);
@@ -28,5 +33,3 @@ async function run(): Promise<void> {
     }
   }
 }
-
-void run();

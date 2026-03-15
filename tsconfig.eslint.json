@@ -2,17 +2,19 @@
   "$schema": "https://json.schemastore.org/tsconfig",
   "extends": "./tsconfig.base.json",
   "compilerOptions": {
-    "module": "NodeNext",
-    "moduleResolution": "NodeNext",
-    "outDir": "./dist"
+    "allowJs": true,
+    "isolatedModules": true,
+    "noEmit": true
   },
   "exclude": [
-    "__tests__",
-    "coverage",
     "dist",
     "node_modules"
   ],
   "include": [
-    "src"
+    "__tests__",
+    "src",
+    "eslint.config.mjs",
+    "jest.config.js",
+    "rollup.config.ts"
   ]
 }

@@ -1,4 +1,5 @@
-import { upload, parseUploadUrl, canonicalName } from "../src/upload-release-asset";
+import { jest } from "@jest/globals";
+import { upload, parseUploadUrl, canonicalName } from "../src/upload-release-asset.js";
 
 test("Upload Release Asset", async () => {
   const uploadUrl =
@@ -93,7 +94,7 @@ test("Upload Multiple Files", async () => {
   // })
   expect(uploadReleaseAsset).toBeCalledTimes(3);
   expect(output.browser_download_url).toBe(
-    "http://example.com/download\nhttp://example.com/download\nhttp://example.com/download"
+    "http://example.com/download\nhttp://example.com/download\nhttp://example.com/download",
   );
 });
 
@@ -151,7 +152,7 @@ test("Guess Content Types", async () => {
   // })
   expect(uploadReleaseAsset).toBeCalledTimes(3);
   expect(output.browser_download_url).toBe(
-    "http://example.com/download\nhttp://example.com/download\nhttp://example.com/download"
+    "http://example.com/download\nhttp://example.com/download\nhttp://example.com/download",
   );
 });
 
@@ -209,7 +210,7 @@ test("Guess Content Types", async () => {
   // })
   expect(uploadReleaseAsset).toBeCalledTimes(3);
   expect(output.browser_download_url).toBe(
-    "http://example.com/download\nhttp://example.com/download\nhttp://example.com/download"
+    "http://example.com/download\nhttp://example.com/download\nhttp://example.com/download",
   );
 });
 
@@ -237,7 +238,7 @@ test("duplicated file names", async () => {
         overwrite: false,
         uploadReleaseAsset: uploadReleaseAsset,
         getRelease: getRelease,
-      })
+      }),
   ).rejects.toThrow(/validation error/);
   expect(uploadReleaseAsset).not.toBeCalled();
 });
@@ -272,7 +273,7 @@ test("uploading files already exists", async () => {
         overwrite: false,
         uploadReleaseAsset: uploadReleaseAsset,
         getRelease: getRelease,
-      })
+      }),
   ).rejects.toThrow(/validation error/);
   expect(uploadReleaseAsset).not.toBeCalled();
 });
@@ -317,7 +318,7 @@ test("overwrite", async () => {
 
 test("parseUploadUrl", () => {
   const release = parseUploadUrl(
-    "https://example.com/repos/shogo82148/github-action-test/releases/23245222/assets"
+    "https://example.com/repos/shogo82148/github-action-test/releases/23245222/assets",
   );
   expect(release.owner).toBe("shogo82148");
   expect(release.repo).toBe("github-action-test");
