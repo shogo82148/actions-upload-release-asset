@@ -36,7 +36,7 @@ test("Upload Release Asset", async () => {
   //   url: 'http://example.com'
   // })
 
-  expect(uploadReleaseAsset).toBeCalledTimes(1);
+  expect(uploadReleaseAsset).toHaveBeenCalledTimes(1);
   expect(output.browser_download_url).toBe("http://example.com/download");
 });
 
@@ -92,7 +92,7 @@ test("Upload Multiple Files", async () => {
   //   name: 'foo03.txt',
   //   url: 'http://example.com'
   // })
-  expect(uploadReleaseAsset).toBeCalledTimes(3);
+  expect(uploadReleaseAsset).toHaveBeenCalledTimes(3);
   expect(output.browser_download_url).toBe(
     "http://example.com/download\nhttp://example.com/download\nhttp://example.com/download",
   );
@@ -150,7 +150,7 @@ test("Guess Content Types", async () => {
   //   name: 'bar.zip',
   //   url: 'http://example.com'
   // })
-  expect(uploadReleaseAsset).toBeCalledTimes(3);
+  expect(uploadReleaseAsset).toHaveBeenCalledTimes(3);
   expect(output.browser_download_url).toBe(
     "http://example.com/download\nhttp://example.com/download\nhttp://example.com/download",
   );
@@ -208,7 +208,7 @@ test("Guess Content Types", async () => {
   //   name: 'bar.zip',
   //   url: 'http://example.com'
   // })
-  expect(uploadReleaseAsset).toBeCalledTimes(3);
+  expect(uploadReleaseAsset).toHaveBeenCalledTimes(3);
   expect(output.browser_download_url).toBe(
     "http://example.com/download\nhttp://example.com/download\nhttp://example.com/download",
   );
@@ -240,7 +240,7 @@ test("duplicated file names", async () => {
         getRelease: getRelease,
       }),
   ).rejects.toThrow(/validation error/);
-  expect(uploadReleaseAsset).not.toBeCalled();
+  expect(uploadReleaseAsset).not.toHaveBeenCalled();
 });
 
 test("uploading files already exists", async () => {
@@ -275,7 +275,7 @@ test("uploading files already exists", async () => {
         getRelease: getRelease,
       }),
   ).rejects.toThrow(/validation error/);
-  expect(uploadReleaseAsset).not.toBeCalled();
+  expect(uploadReleaseAsset).not.toHaveBeenCalled();
 });
 
 test("overwrite", async () => {
@@ -309,11 +309,11 @@ test("overwrite", async () => {
     getRelease: getRelease,
     deleteReleaseAsset: deleteReleaseAsset,
   });
-  expect(deleteReleaseAsset).toBeCalledWith({
+  expect(deleteReleaseAsset).toHaveBeenCalledWith({
     url: "http://example.com/download",
     githubToken: "very-secret",
   });
-  expect(uploadReleaseAsset).toBeCalledTimes(1);
+  expect(uploadReleaseAsset).toHaveBeenCalledTimes(1);
 });
 
 test("parseUploadUrl", () => {
