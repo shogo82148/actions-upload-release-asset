@@ -50,7 +50,7 @@ jobs:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       - name: Create Release
         id: create_release
-        uses: shogo82148/actions-create-release@559c27ce7eb834825e2b55927c64f6d1bd1db716 # v1.8.1
+        uses: shogo82148/actions-create-release@6a396031bc74c57403da1018fec74d24c6aa03cd # v1.9.0
         with:
           tag_name: test-${{ github.run_id }}
           release_name: Test for ${{ github.run_id }}
