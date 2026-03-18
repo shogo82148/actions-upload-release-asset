@@ -83,11 +83,11 @@ jobs:
         run: |
           if [ -n "$RELEASE_ID" ]; then
             gh api -X DELETE -H "Accept: application/vnd.github+json" -H "X-GitHub-Api-Version: 2026-03-10" \
-              "/repos/$GITHUB_REPOSITORY/releases/$RELEASE_ID" || true
+              "repos/$GITHUB_REPOSITORY/releases/$RELEASE_ID" || true
             sleep 5 # it takes a moment to delete the release
           fi
           gh api -X DELETE -H "Accept: application/vnd.github+json" -H "X-GitHub-Api-Version: 2026-03-10" \
-            "/repos/$GITHUB_REPOSITORY/git/refs/tags/$TAG_NAME" || true
+            "repos/$GITHUB_REPOSITORY/git/refs/tags/$TAG_NAME" || true
         env:
           GH_TOKEN: ${{ github.token }}
           RELEASE_ID: ${{ steps.create_release.outputs.id }}
