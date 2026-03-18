@@ -28838,6 +28838,14 @@ function error(message, properties = {}) {
     issueCommand('error', toCommandProperties(properties), message instanceof Error ? message.toString() : message);
 }
 /**
+ * Adds a warning issue
+ * @param message warning issue message. Errors will be converted to string via toString()
+ * @param properties optional properties to add to the annotation.
+ */
+function warning(message, properties = {}) {
+    issueCommand('warning', toCommandProperties(properties), message instanceof Error ? message.toString() : message);
+}
+/**
  * Writes info to log with console.log.
  * @param message info message
  */
@@ -43028,12 +43036,18 @@ async function upload(opts) {
     const uploader = opts.uploadReleaseAsset || uploadReleaseAsset;
     const globber = await create(opts.assetPath);
     const files = await globber.glob();
+    if (files.length === 0) {
+        warning(`no files found with the asset_path: ${opts.assetPath}`);
+        return {
+            browser_download_url: "",
+        };
+    }
     await validateFilenames(files, opts);
     const urls = await Promise.all(files.map(async (file) => {
         const name = canonicalName(opts.assetName || path.basename(file));
         const content_type = opts.assetContentType || mimeTypesExports.lookup(file) || "application/octet-stream";
         const stat = await fsStats(file);
-        info(`uploading ${file} as ${name}: size: ${stat.size}`);
+        info(`uploading ${file} as ${name}, size: ${stat.size}, content-type: ${content_type}`);
         const response = await uploader({
             githubToken: opts.githubToken,
             url: opts.uploadUrl,
@@ -43047,6 +43061,7 @@ async function upload(opts) {
         debug(JSON.stringify(response));
         return response.data.browser_download_url;
     }));
+    info(`uploaded ${files.length} file(s) successfully`);
     return {
         browser_download_url: urls.join("\n"),
     };

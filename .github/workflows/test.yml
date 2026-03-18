@@ -62,7 +62,7 @@ jobs:
         uses: ./
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: lib/*.js
+          asset_path: dist/*.js
 
       - name: overwrite
         uses: ./
