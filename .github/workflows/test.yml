@@ -68,13 +68,13 @@ jobs:
         uses: ./
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ${{ case(matrix.os == 'windows-latest', 'dist\\*', 'dist/*') }}
+          asset_path: ${{ case(matrix.os == 'windows-latest', 'dist\*', 'dist/*') }}
 
       - name: overwrite
         uses: ./
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ${{ case(matrix.os == 'windows-latest', 'dist\\*', 'dist/*') }}
+          asset_path: ${{ case(matrix.os == 'windows-latest', 'dist\*', 'dist/*') }}
           overwrite: true
 
       - name: cleanup
