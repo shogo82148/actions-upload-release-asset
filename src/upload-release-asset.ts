@@ -142,6 +142,13 @@ export async function upload(opts: Options): Promise<Outputs> {
   const globber = await glob.create(opts.assetPath);
   const files = await globber.glob();
 
+  if (files.length === 0) {
+    core.warning(`no files found with the asset_path: ${opts.assetPath}`);
+    return {
+      browser_download_url: "",
+    };
+  }
+
   await validateFilenames(files, opts);
 
   const urls = await Promise.all(
@@ -149,7 +156,7 @@ export async function upload(opts: Options): Promise<Outputs> {
       const name = canonicalName(opts.assetName || path.basename(file));
       const content_type = opts.assetContentType || mime.lookup(file) || "application/octet-stream";
       const stat = await fsStats(file);
-      core.info(`uploading ${file} as ${name}: size: ${stat.size}`);
+      core.info(`uploading ${file} as ${name}, size: ${stat.size}, content-type: ${content_type}`);
       const response = await uploader({
         githubToken: opts.githubToken,
         url: opts.uploadUrl,
@@ -164,6 +171,7 @@ export async function upload(opts: Options): Promise<Outputs> {
       return response.data.browser_download_url;
     }),
   );
+  core.info(`uploaded ${files.length} file(s) successfully`);
   return {
     browser_download_url: urls.join("\n"),
   };
