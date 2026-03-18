@@ -80,11 +80,13 @@ jobs:
     steps:
       - name: cleanup
         run: |
+          if [ -n "$RELEASE_ID" ]; then
+            gh api -X DELETE -H "Accept: application/vnd.github+json" -H "X-GitHub-Api-Version: 2026-03-10" \
+              "$GITHUB_API_URL/repos/$GITHUB_REPOSITORY/releases/$RELEASE_ID" || true
+            sleep 5 # it takes a moment to delete the release
+          fi
           gh api -X DELETE -H "Accept: application/vnd.github+json" -H "X-GitHub-Api-Version: 2026-03-10" \
-            "$GITHUB_API_URL/repos/$GITHUB_REPOSITORY/releases/$RELEASE_ID"
-          sleep 5 # it takes a moment to delete the release
-          gh api -X DELETE -H "Accept: application/vnd.github+json" -H "X-GitHub-Api-Version: 2026-03-10" \
-            "$GITHUB_API_URL/repos/$GITHUB_REPOSITORY/git/refs/tags/test-$GITHUB_RUN_ID"
+            "$GITHUB_API_URL/repos/$GITHUB_REPOSITORY/git/refs/tags/test-$GITHUB_RUN_ID" || true
         if: always()
         env:
           GH_TOKEN: ${{ github.token }}
