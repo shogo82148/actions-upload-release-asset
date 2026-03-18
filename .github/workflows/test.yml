@@ -79,6 +79,7 @@ jobs:
 
       - name: cleanup
         if: always()
+        shell: bash
         run: |
           if [ -n "$RELEASE_ID" ]; then
             gh api -X DELETE -H "Accept: application/vnd.github+json" -H "X-GitHub-Api-Version: 2026-03-10" \
