@@ -45,7 +45,7 @@
     "@types/jest": "^30.0.0",
     "@types/mime-types": "^3.0.1",
     "@types/node": "^24.13.0",
-    "eslint": "^10.6.0",
+    "eslint": "^10.7.0",
     "jest": "^30.4.2",
     "js-yaml": "^5.2.1",
     "prettier": "^3.9.5",
