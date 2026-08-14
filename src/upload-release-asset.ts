@@ -143,7 +143,7 @@ export async function upload(opts: Options): Promise<Outputs> {
   const files = await globber.glob();
 
   if (files.length === 0) {
-    core.warning(`no files found with the asset_path: ${opts.assetPath}`);
+    core.setFailed(`no files found with the asset_path: ${opts.assetPath}`);
     return {
       browser_download_url: "",
     };
