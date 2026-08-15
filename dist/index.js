@@ -29153,14 +29153,6 @@ function error(message, properties = {}) {
     issueCommand('error', toCommandProperties(properties), message instanceof Error ? message.toString() : message);
 }
 /**
- * Adds a warning issue
- * @param message warning issue message. Errors will be converted to string via toString()
- * @param properties optional properties to add to the annotation.
- */
-function warning(message, properties = {}) {
-    issueCommand('warning', toCommandProperties(properties), message instanceof Error ? message.toString() : message);
-}
-/**
  * Writes info to log with console.log.
  * @param message info message
  */
@@ -44537,7 +44529,7 @@ async function upload(opts) {
     const globber = await create(opts.assetPath);
     const files = await globber.glob();
     if (files.length === 0) {
-        warning(`no files found with the asset_path: ${opts.assetPath}`);
+        setFailed(`no files found with the asset_path: ${opts.assetPath}`);
         return {
             browser_download_url: "",
         };
