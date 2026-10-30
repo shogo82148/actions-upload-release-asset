@@ -19,8 +19,8 @@ jobs:
     steps:
       - name: disable auto CRLF
         run: git config --global core.autoCRLF false
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+      - uses: actions/checkout@v7.0.1
+      - uses: actions/setup-node@v7.1.0
         with:
           node-version-file: .node-version
           cache: "npm"
@@ -34,7 +34,7 @@ jobs:
       permission: ${{ steps.check.outputs.permission }}
     steps:
       - id: check
-        uses: shogo82148/actions-check-permissions@b7c32c43a066d5752565f554c15c9ac4d6d63e3b # v1.0.4
+        uses: shogo82148/actions-check-permissions@v1.0.4
       - name: the result
         run: echo ${{ steps.check.outputs.permission }}
 
@@ -54,10 +54,10 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/checkout@v7.0.1
       - name: Create Release
         id: create_release
-        uses: shogo82148/actions-create-release@c172624cc9dcd7e0a2211b7337e6860b882fc030 # v1.9.3
+        uses: shogo82148/actions-create-release@v1.9.3
         with:
           tag_name: test-${{ github.run_id }}-${{ matrix.os }}
           release_name: Test for ${{ github.run_id }} on ${{ matrix.os }}
